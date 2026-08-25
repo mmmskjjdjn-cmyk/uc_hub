@@ -5,7 +5,6 @@ const { Telegraf, Markup } = require("telegraf");
 const {
   getUser,
   addReferral,
-  getPoints,
   createOrder
 } = require("./database");
 
@@ -14,6 +13,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const PORT = process.env.PORT || 3000;
 const WEB_APP_URL = process.env.WEB_APP_URL;
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "uc_hub_secret";
 
 app.use(express.json());
 app.use(express.static(__dirname));
@@ -35,29 +35,22 @@ bot.start(async (ctx) => {
   if (payload && payload.startsWith("ref_")) {
     const referrerId = payload.replace("ref_", "");
 
-    addReferral(
-      user.id,
-      referrerId
-    );
-  }
-
-  if (!WEB_APP_URL) {
-    return ctx.reply(
-      `أهلاً ${user.first_name || "صديقي"} 👋\n\nUC HUB قيد التجهيز 🔥`
-    );
+    addReferral(user.id, referrerId);
   }
 
   await ctx.reply(
     `🎮 أهلاً بك في UC HUB\n\n` +
-    `🪙 اجمع النقاط من الإحالات واستبدلها بالمكافآت!`,
-    Markup.inlineKeyboard([
-      [
-        Markup.button.webApp(
-          "🚀 فتح UC HUB",
-          WEB_APP_URL
-        )
-      ]
-    ])
+    `🪙 اجمع النقاط واستبدلها بالمكافآت!`,
+    WEB_APP_URL
+      ? Markup.inlineKeyboard([
+          [
+            Markup.button.webApp(
+              "🚀 فتح UC HUB",
+              WEB_APP_URL
+            )
+          ]
+        ])
+      : undefined
   );
 });
 
@@ -97,24 +90,34 @@ app.post("/api/order", (req, res) => {
   res.json(result);
 });
 
-app.listen(PORT, () => {
+app.post(
+  `/telegram/${WEBHOOK_SECRET}`,
+  async (req, res) => {
+    try {
+      await bot.handleUpdate(req.body);
+      res.sendStatus(200);
+    } catch (error) {
+      console.error(error);
+      res.sendStatus(500);
+    }
+  }
+);
+
+app.listen(PORT, async () => {
   console.log(
     `UC HUB server running on port ${PORT}`
   );
-});
 
-bot.launch()
-  .then(() => {
-    console.log(
-      "UC HUB Telegram bot started 🚀"
+  try {
+    await bot.telegram.setWebhook(
+      `https://uc-hubuc-hub.onrender.com/telegram/${WEBHOOK_SECRET}`
     );
-  })
-  .catch((err) => {
+
+    console.log("Telegram webhook enabled 🚀");
+  } catch (error) {
     console.error(
-      "Bot failed to start:",
-      err
+      "Webhook setup failed:",
+      error
     );
-  });
-
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
+  }
+});
