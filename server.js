@@ -5,44 +5,49 @@ const { Telegraf, Markup } = require("telegraf");
 const {
   getUser,
   addReferral,
-  claimDailyReward,
-  addStarsPurchase,
   createOrder,
-  getOrders,
   loadData,
   saveData
 } = require("./database");
 
 const app = express();
-const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const PORT = process.env.PORT || 3000;
+const bot = new Telegraf(
+  process.env.BOT_TOKEN
+);
+
+const PORT =
+  process.env.PORT || 3000;
 
 const WEB_APP_URL =
   "https://uc-hubuc-hub.onrender.com";
 
 const WEBHOOK_SECRET =
-  process.env.WEBHOOK_SECRET || "uc_hub_secret";
+  process.env.WEBHOOK_SECRET ||
+  "uc_hub_secret";
 
-const CHANNEL_USERNAME =
-  "@FREEUC_60";
-
-const STAR_PACKAGES = {
-  100: 50,
-  200: 100,
-  500: 250,
-  1000: 500,
-  2000: 1000
-};
+/* 👑 Telegram ID الخاص بالمالك */
+const OWNER_ID = "6692410534";
 
 app.use(express.json());
-app.use(express.static(__dirname));
+
+app.use(
+  express.static(__dirname)
+);
 
 app.get("/", (req, res) => {
+
   res.sendFile(
-    path.join(__dirname, "index.html")
+    path.join(
+      __dirname,
+      "index.html"
+    )
   );
+
 });
+
+
+/* 🤖 تشغيل البوت */
 
 bot.start(async (ctx) => {
 
@@ -60,158 +65,156 @@ bot.start(async (ctx) => {
     payload &&
     payload.startsWith("ref_")
   ) {
+
+    const referrerId =
+      payload.replace(
+        "ref_",
+        ""
+      );
+
     addReferral(
       user.id,
-      payload.replace("ref_", "")
+      referrerId
     );
+
   }
 
   await ctx.reply(
+
     `🎮 أهلاً بك في UC HUB\n\n` +
     `🪙 اجمع النقاط واستبدلها بالمكافآت!`,
-    Markup.inlineKeyboard([
-      [
-        Markup.button.webApp(
-          "🚀 فتح UC HUB",
-          WEB_APP_URL
-        )
-      ]
-    ])
+
+    WEB_APP_URL
+
+      ? Markup.inlineKeyboard([
+          [
+            Markup.button.webApp(
+              "🚀 فتح UC HUB",
+              WEB_APP_URL
+            )
+          ]
+        ])
+
+      : undefined
+
   );
+
 });
+
+
+/* 👑 أمر المالك لإضافة 1000 نقطة */
+
+bot.command(
+  "add1000",
+  async (ctx) => {
+
+    if (
+      String(ctx.from.id) !==
+      OWNER_ID
+    ) {
+
+      return ctx.reply(
+        "❌ هذا الأمر مخصص لمالك البوت فقط."
+      );
+
+    }
+
+    try {
+
+      const user =
+        getUser(
+          ctx.from.id,
+          ctx.from.first_name ||
+          "Owner"
+        );
+
+      const data =
+        loadData();
+
+      const id =
+        String(ctx.from.id);
+
+      if (!data.users[id]) {
+
+        data.users[id] = {
+          id,
+          firstName:
+            ctx.from.first_name ||
+            "Owner",
+          points: 0,
+          referrals: 0,
+          createdAt:
+            new Date().toISOString()
+        };
+
+      }
+
+      data.users[id].points += 1000;
+
+      saveData(data);
+
+      await ctx.reply(
+
+        "👑 تم تنفيذ أمر المالك بنجاح!\n\n" +
+
+        "🪙 تمت إضافة: +1000 نقطة\n" +
+
+        "💰 رصيدك الآن: " +
+        data.users[id].points +
+        " نقطة\n\n" +
+
+        "🔥 UC HUB"
+
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Add points error:",
+        error
+      );
+
+      await ctx.reply(
+        "❌ حدث خطأ أثناء إضافة النقاط."
+      );
+
+    }
+
+  }
+);
+
+
+/* 👤 بيانات المستخدم */
 
 app.get(
   "/api/user/:id",
   (req, res) => {
 
     const user =
-      getUser(req.params.id);
-
-    res.json({
-      id: user.id,
-      firstName: user.firstName,
-      points: user.points,
-      referrals: user.referrals
-    });
-  }
-);
-
-app.post(
-  "/api/rewards/daily",
-  (req, res) => {
-
-    const userId =
-      req.body.userId;
-
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: "المستخدم غير معروف"
-      });
-    }
-
-    res.json(
-      claimDailyReward(userId)
-    );
-  }
-);
-
-app.get(
-  "/api/rewards/channel",
-  async (req, res) => {
-
-    try {
-
-      const userId =
-        Number(req.query.userId);
-
-      if (!userId) {
-        return res.json({
-          success: false,
-          message: "المستخدم غير معروف"
-        });
-      }
-
-      const member =
-        await bot.telegram.getChatMember(
-          CHANNEL_USERNAME,
-          userId
-        );
-
-      const allowed = [
-        "creator",
-        "administrator",
-        "member"
-      ];
-
-      if (!allowed.includes(member.status)) {
-        return res.json({
-          success: false,
-          joined: false,
-          message:
-            "انضم إلى القناة أولاً 📢"
-        });
-      }
-
-      const data = loadData();
-
-      const user =
-        data.users[String(userId)];
-
-      if (!user) {
-        return res.json({
-          success: false
-        });
-      }
-
-      if (user.channelRewardClaimed) {
-        return res.json({
-          success: false,
-          joined: true,
-          alreadyClaimed: true,
-          message:
-            "أخذت مكافأة القناة مسبقاً 🎁"
-        });
-      }
-
-      user.points += 1;
-
-      user.channelRewardClaimed = true;
-
-      saveData(data);
-
-      res.json({
-        success: true,
-        joined: true,
-        points: 1,
-        balance: user.points
-      });
-
-    } catch (error) {
-
-      console.error(
-        "Channel check:",
-        error
+      getUser(
+        req.params.id
       );
 
-      res.status(500).json({
-        success: false,
-        message:
-          "البوت يجب أن يكون موجوداً في القناة"
-      });
-    }
+    res.json({
+
+      id: user.id,
+
+      firstName:
+        user.firstName,
+
+      points:
+        user.points,
+
+      referrals:
+        user.referrals
+
+    });
+
   }
 );
 
-app.get(
-  "/api/orders/:userId",
-  (req, res) => {
 
-    res.json(
-      getOrders(req.params.userId)
-    );
-  }
-);
+/* 📦 إنشاء طلب UC */
 
 app.post(
   "/api/order",
@@ -227,184 +230,46 @@ app.post(
     if (
       !userId ||
       !uc ||
-      !cost ||
+      cost === undefined ||
       !playerId
     ) {
+
       return res.status(400).json({
+
         success: false,
+
         message:
           "بيانات الطلب ناقصة"
-      });
-    }
 
-    res.json(
-      createOrder(
-        userId,
-        Number(uc),
-        Number(cost),
-        String(playerId)
-      )
-    );
-  }
-);
-
-app.post(
-  "/api/stars/invoice",
-  async (req, res) => {
-
-    try {
-
-      const stars =
-        Number(req.body.stars);
-
-      const points =
-        STAR_PACKAGES[stars];
-
-      if (!points) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "باقة غير صحيحة"
-        });
-      }
-
-      const invoiceLink =
-        await bot.telegram.callApi(
-          "createInvoiceLink",
-          {
-            title:
-              `${points} نقطة`,
-
-            description:
-              `شراء ${points} نقطة`,
-
-            payload:
-              `stars_${stars}_${points}`,
-
-            currency: "XTR",
-
-            prices: [
-              {
-                label:
-                  `${points} نقطة`,
-                amount: stars
-              }
-            ]
-          }
-        );
-
-      res.json({
-        success: true,
-        invoiceLink
       });
 
-    } catch (error) {
-
-      console.error(error);
-
-      res.status(500).json({
-        success: false,
-        message:
-          "تعذر إنشاء الفاتورة"
-      });
-    }
-  }
-);
-
-bot.on(
-  "pre_checkout_query",
-  async (ctx) => {
-
-    const query =
-      ctx.update.pre_checkout_query;
-
-    const match =
-      query.invoice_payload.match(
-        /^stars_(\d+)_(\d+)$/
-      );
-
-    if (!match) {
-      return ctx.answerPreCheckoutQuery(
-        false,
-        "فاتورة غير صالحة"
-      );
-    }
-
-    const stars =
-      Number(match[1]);
-
-    const points =
-      Number(match[2]);
-
-    if (
-      STAR_PACKAGES[stars] !== points ||
-      query.currency !== "XTR" ||
-      Number(query.total_amount) !== stars
-    ) {
-      return ctx.answerPreCheckoutQuery(
-        false,
-        "بيانات الدفع غير صحيحة"
-      );
-    }
-
-    await ctx.answerPreCheckoutQuery(
-      true
-    );
-  }
-);
-
-bot.on(
-  "message",
-  async (ctx) => {
-
-    const payment =
-      ctx.message.successful_payment;
-
-    if (!payment) return;
-
-    const match =
-      payment.invoice_payload.match(
-        /^stars_(\d+)_(\d+)$/
-      );
-
-    if (!match) return;
-
-    const stars =
-      Number(match[1]);
-
-    const points =
-      Number(match[2]);
-
-    if (
-      payment.currency !== "XTR" ||
-      STAR_PACKAGES[stars] !== points ||
-      Number(payment.total_amount) !== stars
-    ) {
-      return;
     }
 
     const result =
-      addStarsPurchase(
-        ctx.from.id,
-        stars,
-        points,
-        payment.telegram_payment_charge_id
+      createOrder(
+
+        userId,
+
+        Number(uc),
+
+        Number(cost),
+
+        String(playerId)
+
       );
 
-    if (result.success) {
+    res.json(result);
 
-      await ctx.reply(
-        `🎉 تم الدفع بنجاح!\n\n` +
-        `⭐ ${stars} Stars\n` +
-        `🪙 +${points} نقطة\n\n` +
-        `💰 رصيدك: ${result.newBalance} نقطة`
-      );
-    }
   }
 );
 
+
+/* 🔐 Telegram Webhook */
+
 app.post(
+
   `/telegram/${WEBHOOK_SECRET}`,
+
   async (req, res) => {
 
     try {
@@ -420,9 +285,15 @@ app.post(
       console.error(error);
 
       res.sendStatus(500);
+
     }
+
   }
+
 );
+
+
+/* 🚀 تشغيل السيرفر */
 
 app.listen(
   PORT,
@@ -435,7 +306,9 @@ app.listen(
     try {
 
       await bot.telegram.setWebhook(
+
         `https://uc-hubuc-hub.onrender.com/telegram/${WEBHOOK_SECRET}`
+
       );
 
       console.log(
@@ -448,6 +321,8 @@ app.listen(
         "Webhook setup failed:",
         error
       );
+
     }
+
   }
 );
