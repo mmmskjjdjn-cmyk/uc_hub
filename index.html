@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -16,129 +17,154 @@ font-family:Arial,sans-serif
 
 body{
 min-height:100vh;
-color:white;
+color:#fff;
 background:
-radial-gradient(circle at 10% 10%,#00d9ff25,transparent 30%),
-radial-gradient(circle at 90% 20%,#7957ff30,transparent 30%),
-#050711
+radial-gradient(circle at 10% 5%,#00d9ff35,transparent 28%),
+radial-gradient(circle at 90% 15%,#7957ff35,transparent 30%),
+radial-gradient(circle at 50% 100%,#00ff9d15,transparent 35%),
+#050711;
 }
 
 .app{
 max-width:480px;
 margin:auto;
-padding:18px 15px 35px
+padding:18px 15px 40px;
 }
 
 .logo{
 text-align:center;
-font-size:38px;
+font-size:40px;
 font-weight:1000;
 letter-spacing:3px;
-margin-bottom:10px;
-text-shadow:0 0 25px #00d9ff55
+margin-bottom:7px;
+text-shadow:0 0 25px #00d9ff70;
 }
 
-.logo span{color:#00d9ff}
+.logo span{
+color:#00d9ff;
+}
 
 .status{
 text-align:center;
 color:#60ffbd;
 font-size:12px;
-margin-bottom:20px
+margin-bottom:22px;
 }
 
 .welcome{
 font-size:23px;
 font-weight:900;
-margin-bottom:13px
+margin-bottom:13px;
 }
 
 .balance{
-padding:22px;
-border-radius:24px;
-background:#101729dd;
-border:1px solid #00d9ff30;
-margin-bottom:22px
+padding:23px;
+border-radius:25px;
+background:linear-gradient(145deg,#111b31ee,#0b1020ee);
+border:1px solid #00d9ff35;
+box-shadow:0 10px 35px #0005;
+margin-bottom:22px;
 }
 
-.balance small{color:#929db5}
+.balance small{
+color:#929db5;
+}
 
 .points{
-font-size:38px;
+font-size:40px;
 font-weight:1000;
 color:#ffd43b;
-margin-top:5px
+margin-top:6px;
+text-shadow:0 0 20px #ffd43b45;
 }
 
 .title{
 font-size:21px;
 font-weight:900;
-margin:20px 2px 12px
+margin:22px 2px 12px;
 }
 
 .cards{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:11px
+gap:11px;
 }
 
 .card{
-padding:17px 12px;
-border-radius:20px;
+padding:18px 12px;
+border-radius:21px;
 background:#101729dd;
 border:1px solid #00d9ff22;
-text-align:center
+text-align:center;
+box-shadow:0 8px 25px #0003;
 }
 
-.icon{font-size:29px}
+.icon{
+font-size:30px;
+}
 
 .uc{
 font-size:22px;
 font-weight:1000;
-margin:5px 0
+margin:5px 0;
 }
 
 .cost{
 color:#ffd43b;
 font-weight:900;
 font-size:14px;
-margin-bottom:12px
+margin-bottom:12px;
 }
 
 button{
 border:0;
-cursor:pointer
+cursor:pointer;
+transition:.15s;
+}
+
+button:active{
+transform:scale(.96);
 }
 
 .buy{
 width:100%;
-padding:11px;
-border-radius:12px;
+padding:12px;
+border-radius:13px;
 background:linear-gradient(135deg,#00d9ff,#72efff);
-font-weight:1000
+font-weight:1000;
+color:#061018;
 }
 
-.reward,.stars,.invite{
+.section{
 margin-top:20px;
-padding:18px;
-border-radius:22px;
-background:#101729dd
+padding:19px;
+border-radius:23px;
+background:#101729e8;
+box-shadow:0 8px 30px #0004;
 }
 
 .reward{
-border:1px solid #ffd43b30
+border:1px solid #ffd43b35;
 }
 
-.reward h2,.stars h2,.invite h2{
+.stars{
+border:1px solid #ffd43b35;
+}
+
+.invite{
+border:1px solid #7957ff45;
+}
+
+.section h2{
 font-size:20px;
-margin-bottom:7px
+margin-bottom:8px;
 }
 
-.reward p,.invite p{
+.section p{
 color:#98a3ba;
 font-size:13px;
 line-height:1.7;
-margin-bottom:13px
+margin-bottom:13px;
 }
 
 .reward button{
@@ -147,68 +173,71 @@ padding:13px;
 border-radius:13px;
 background:linear-gradient(135deg,#ffd43b,#fff08b);
 font-weight:1000;
-margin-top:8px
+margin-top:8px;
 }
 
-.stars{
-border:1px solid #ffd43b30
+.channel{
+background:linear-gradient(135deg,#00c6ff,#0072ff)!important;
+color:white;
 }
 
 .star{
 display:flex;
 align-items:center;
 justify-content:space-between;
-padding:12px;
+padding:13px;
 margin-top:8px;
-border-radius:14px;
-background:#ffffff08
+border-radius:15px;
+background:#ffffff08;
+border:1px solid #ffffff08;
 }
 
-.star b{color:#ffd43b}
+.star b{
+color:#ffd43b;
+}
 
 .star button{
-padding:10px 14px;
+padding:10px 15px;
 border-radius:11px;
 background:#ffd43b;
-font-weight:1000
-}
-
-.invite{
-border:1px solid #7957ff40
+font-weight:1000;
 }
 
 .invite button{
 width:100%;
 padding:13px;
 border-radius:13px;
-background:#7957ff;
+background:linear-gradient(135deg,#7957ff,#a878ff);
 color:white;
-font-weight:1000
+font-weight:1000;
 }
 
-.orders{margin-top:20px}
+.orders{
+margin-top:22px;
+}
 
 .order{
-padding:15px;
-border-radius:16px;
+padding:16px;
+border-radius:17px;
 background:#101729dd;
 border:1px solid #ffffff0c;
-margin-top:8px
+margin-top:9px;
 }
 
 .order small{
 display:block;
 color:#8f9ab0;
-margin-top:5px
+margin-top:6px;
 }
 
 .empty{
 text-align:center;
-padding:20px;
+padding:21px;
 color:#8792aa;
 background:#101729dd;
-border-radius:18px
+border-radius:18px;
 }
+
 </style>
 </head>
 
@@ -229,11 +258,18 @@ border-radius:18px
 </div>
 
 <div class="balance">
-<small>رصيد النقاط</small>
-<div class="points" id="points">0 🪙</div>
+
+<small>🪙 رصيدك الحالي</small>
+
+<div class="points" id="points">
+0 🪙
 </div>
 
-<div class="title">🎮 متجر UC</div>
+</div>
+
+<div class="title">
+🎮 متجر UC
+</div>
 
 <div class="cards">
 
@@ -241,87 +277,120 @@ border-radius:18px
 <div class="icon">💎</div>
 <div class="uc">60 UC</div>
 <div class="cost">30 نقطة</div>
-<button class="buy" onclick="buyUC(60,30)">استبدال</button>
+<button class="buy" onclick="buyUC(60,30)">
+استبدال
+</button>
 </div>
 
 <div class="card">
 <div class="icon">💎</div>
 <div class="uc">325 UC</div>
 <div class="cost">70 نقطة</div>
-<button class="buy" onclick="buyUC(325,70)">استبدال</button>
+<button class="buy" onclick="buyUC(325,70)">
+استبدال
+</button>
 </div>
 
 <div class="card">
 <div class="icon">💎</div>
 <div class="uc">660 UC</div>
 <div class="cost">100 نقطة</div>
-<button class="buy" onclick="buyUC(660,100)">استبدال</button>
+<button class="buy" onclick="buyUC(660,100)">
+استبدال
+</button>
 </div>
 
 <div class="card">
 <div class="icon">💎</div>
 <div class="uc">1800 UC</div>
 <div class="cost">220 نقطة</div>
-<button class="buy" onclick="buyUC(1800,220)">استبدال</button>
+<button class="buy" onclick="buyUC(1800,220)">
+استبدال
+</button>
 </div>
 
 </div>
 
-<div class="reward">
+<div class="section reward">
 
-<h2>🎁 احصل على نقاط مجانية</h2>
+<h2>
+🎁 اجمع نقاط مجانية
+</h2>
 
 <p>
-نفّذ المهام واحصل على نقاط مجانية.
+أنجز المهام واحصل على نقاط تساعدك على استبدال UC مجاناً.
 </p>
 
 <button onclick="dailyReward()">
-🎁 الهدية اليومية +1 نقطة
+🎁 استلام الهدية اليومية +1 🪙
 </button>
 
-<button onclick="joinChannel()">
-📢 انضم إلى القناة +1 نقطة
+<button class="channel" onclick="joinChannel()">
+📢 انضم للقناة واحصل على +1 🪙
 </button>
 
 </div>
 
-<div class="stars">
+<div class="section stars">
 
-<h2>⭐ شراء النقاط</h2>
+<h2>
+⭐ شراء النقاط
+</h2>
+
+<p>
+اشترِ النقاط باستخدام Telegram Stars.
+</p>
 
 <div class="star">
-<div><b>100 ⭐</b><br>50 🪙 نقطة</div>
+<div>
+<b>100 ⭐</b><br>
+50 🪙 نقطة
+</div>
 <button onclick="buyStars(100)">شراء</button>
 </div>
 
 <div class="star">
-<div><b>200 ⭐</b><br>100 🪙 نقطة</div>
+<div>
+<b>200 ⭐</b><br>
+100 🪙 نقطة
+</div>
 <button onclick="buyStars(200)">شراء</button>
 </div>
 
 <div class="star">
-<div><b>500 ⭐</b><br>250 🪙 نقطة</div>
+<div>
+<b>500 ⭐</b><br>
+250 🪙 نقطة
+</div>
 <button onclick="buyStars(500)">شراء</button>
 </div>
 
 <div class="star">
-<div><b>1000 ⭐</b><br>500 🪙 نقطة</div>
+<div>
+<b>1000 ⭐</b><br>
+500 🪙 نقطة
+</div>
 <button onclick="buyStars(1000)">شراء</button>
 </div>
 
 <div class="star">
-<div><b>2000 ⭐</b><br>1000 🪙 نقطة</div>
+<div>
+<b>2000 ⭐</b><br>
+1000 🪙 نقطة
+</div>
 <button onclick="buyStars(2000)">شراء</button>
 </div>
 
 </div>
 
-<div class="invite">
+<div class="section invite">
 
-<h2>🔗 ادعُ أصدقاءك</h2>
+<h2>
+🔗 ادعُ أصدقاءك
+</h2>
 
 <p>
-كل إحالة ناجحة تمنحك نقطة واحدة 🪙
+شارك رابطك. كل إحالة ناجحة تمنحك +1 نقطة 🪙
 </p>
 
 <button onclick="invite()">
@@ -332,12 +401,16 @@ border-radius:18px
 
 <div class="orders">
 
-<div class="title">📦 طلباتي</div>
+<div class="title">
+📦 طلباتي
+</div>
 
 <div id="orders">
+
 <div class="empty">
-لا توجد طلبات حتى الآن 📦
+📦 لا توجد طلبات حتى الآن
 </div>
+
 </div>
 
 </div>
@@ -381,19 +454,31 @@ points+" 🪙";
 loadOrders();
 
 }catch(e){
+
 console.error(e);
+
 }
 
 }
+
+
+/* 🎁 الهدية اليومية */
 
 async function dailyReward(){
 
 const u=user();
 
 if(!u){
-alert("افتح الموقع من داخل Telegram");
+
+alert(
+"⚠️ افتح UC HUB من داخل Telegram"
+);
+
 return;
+
 }
+
+try{
 
 const r=await fetch(
 "/api/rewards/daily",
@@ -405,32 +490,61 @@ headers:{
 body:JSON.stringify({
 userId:u.id
 })
-});
+}
+);
 
 const d=await r.json();
 
+if(d.success){
+
 alert(
-d.success
-?
-"🎁 حصلت على +1 نقطة!\n\nرصيدك: "+d.balance+" 🪙"
-:
-d.message
+"🎉✨ مبروك يا بطل! ✨🎉\n\n"+
+"🎁 استلمت هديتك اليومية بنجاح!\n\n"+
+"🪙 المكافأة: +1 نقطة\n"+
+"💰 رصيدك الآن: "+d.balance+" نقطة\n\n"+
+"🔥 ارجع بكرا وخذ هديتك الجديدة!\n"+
+"🚀 استمر بجمع النقاط واستبدلها بـ UC."
 );
+
+}else{
+
+alert(
+"⏳ هديتك اليومية تم استلامها مسبقاً!\n\n"+
+"🎁 لا تقلق، هديتك الجديدة تنتظرك غداً.\n\n"+
+"🔥 ارجع بكرا لتحصل على +1 نقطة!"
+);
+
+}
 
 loadUser();
 
+}catch(e){
+
+alert(
+"❌ حدث خطأ أثناء استلام الهدية.\n\n"+
+"حاول مرة أخرى بعد قليل."
+);
+
 }
+
+}
+
+
+/* 📢 الاشتراك بالقناة */
 
 async function joinChannel(){
 
 const u=user();
 
 if(!u){
-alert("افتح الموقع من داخل Telegram");
-return;
-}
 
-const channel="@FREEUC_60";
+alert(
+"⚠️ افتح UC HUB من داخل Telegram"
+);
+
+return;
+
+}
 
 if(tg?.openTelegramLink){
 
@@ -440,7 +554,8 @@ tg.openTelegramLink(
 
 }
 
-setTimeout(async()=>{
+setTimeout(
+async()=>{
 
 try{
 
@@ -453,8 +568,12 @@ const d=await r.json();
 if(d.success){
 
 alert(
-"🎉 حصلت على +1 نقطة!\n\n"+
-"رصيدك: "+d.balance+" 🪙"
+"🎉🔥 أحسنت! 🔥🎉\n\n"+
+"📢 تم تأكيد اشتراكك بالقناة!\n\n"+
+"🪙 المكافأة: +1 نقطة\n"+
+"💰 رصيدك الآن: "+d.balance+" نقطة\n\n"+
+"💎 استمر بجمع النقاط\n"+
+"🚀 واستبدلها بمكافآت UC!"
 );
 
 loadUser();
@@ -462,33 +581,59 @@ loadUser();
 }else{
 
 alert(
-d.message||
-"انضم للقناة أولاً ثم اضغط الزر مرة ثانية."
+"📢 لم يتم تأكيد الاشتراك بعد\n\n"+
+"1️⃣ انضم إلى قناة @FREEUC_60\n"+
+"2️⃣ ارجع إلى UC HUB\n"+
+"3️⃣ اضغط الزر مرة ثانية\n\n"+
+"🪙 عند التأكيد ستحصل على +1 نقطة."
 );
 
 }
 
 }catch(e){
 
-alert("حدث خطأ، حاول مرة أخرى.");
+alert(
+"❌ تعذر التحقق من الاشتراك.\n\n"+
+"تأكد من انضمامك إلى @FREEUC_60 ثم حاول مرة أخرى."
+);
 
 }
 
-},1800);
+},
+2000
+);
 
 }
+
+
+/* 💎 استبدال UC */
 
 async function buyUC(uc,cost){
 
 const u=user();
 
-if(!u)return;
+if(!u){
+
+alert(
+"⚠️ افتح UC HUB من داخل Telegram"
+);
+
+return;
+
+}
 
 if(points<cost){
 
 alert(
-"❌ رصيدك غير كافٍ\n\n"+
-"تحتاج "+cost+" نقطة."
+"🪙 رصيدك غير كافٍ!\n\n"+
+"💰 رصيدك الحالي: "+points+" نقطة\n"+
+"🎯 المطلوب: "+cost+" نقطة\n\n"+
+"🎁 طرق جمع النقاط:\n"+
+"• الهدية اليومية +1 🪙\n"+
+"• الاشتراك بالقناة +1 🪙\n"+
+"• دعوة الأصدقاء 🪙\n"+
+"• شراء النقاط ⭐\n\n"+
+"🔥 اجمع نقاطك واستبدلها بـ UC!"
 );
 
 return;
@@ -496,10 +641,12 @@ return;
 }
 
 const playerID=prompt(
-"🎮 أدخل Player ID:"
+"🎮 أدخل Player ID الخاص بك:"
 );
 
 if(!playerID)return;
+
+try{
 
 const r=await fetch(
 "/api/order",
@@ -510,32 +657,50 @@ headers:{
 },
 body:JSON.stringify({
 userId:u.id,
-uc,
-cost,
+uc:uc,
+cost:cost,
 playerId:playerID
 })
-});
+}
+);
 
 const d=await r.json();
 
 if(d.success){
 
 alert(
-"🎉 تم إنشاء طلبك!\n\n"+
-"💎 "+uc+" UC\n"+
-"🪙 "+cost+" نقطة\n"+
-"🆔 "+playerID
+"🎉 تم إنشاء طلبك بنجاح!\n\n"+
+"💎 الباقة: "+uc+" UC\n"+
+"🪙 النقاط المستخدمة: "+cost+"\n"+
+"🆔 Player ID: "+playerID+"\n\n"+
+"📦 طلبك الآن قيد المعالجة.\n"+
+"يمكنك متابعته من قسم «طلباتي»."
 );
 
 loadUser();
 
 }else{
 
-alert(d.message);
+alert(
+"❌ لم يتم إنشاء الطلب\n\n"+
+(d.message||"حدث خطأ، حاول مرة أخرى.")
+);
+
+}
+
+}catch(e){
+
+alert(
+"❌ تعذر إرسال الطلب.\n\n"+
+"حاول مرة أخرى."
+);
 
 }
 
 }
+
+
+/* ⭐ Telegram Stars */
 
 async function buyStars(stars){
 
@@ -544,12 +709,14 @@ const u=user();
 if(!u){
 
 alert(
-"افتح UC HUB من داخل Telegram"
+"⚠️ افتح UC HUB من داخل Telegram"
 );
 
 return;
 
 }
+
+try{
 
 const r=await fetch(
 "/api/stars/invoice",
@@ -559,15 +726,19 @@ headers:{
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
-stars
+stars:stars
 })
-});
+}
+);
 
 const d=await r.json();
 
 if(!d.success){
 
-alert(d.message);
+alert(
+"❌ "+(d.message||"تعذر إنشاء عملية الدفع.")
+);
+
 return;
 
 }
@@ -581,8 +752,9 @@ status=>{
 if(status==="paid"){
 
 alert(
-"🎉 تم الدفع!\n"+
-"سيتم إضافة النقاط تلقائياً."
+"🎉💳 تم الدفع بنجاح!\n\n"+
+"⭐ تم استلام النجوم.\n"+
+"🪙 سيتم إضافة النقاط إلى رصيدك تلقائياً."
 );
 
 setTimeout(loadUser,1500);
@@ -591,7 +763,17 @@ setTimeout(loadUser,1500);
 
 else if(status==="failed"){
 
-alert("❌ فشل الدفع");
+alert(
+"❌ فشل الدفع.\n\nحاول مرة أخرى."
+);
+
+}
+
+else if(status==="cancelled"){
+
+alert(
+"ℹ️ تم إلغاء عملية الدفع."
+);
 
 }
 
@@ -607,7 +789,18 @@ d.invoiceLink,
 
 }
 
+}catch(e){
+
+alert(
+"❌ تعذر فتح عملية الدفع."
+);
+
 }
+
+}
+
+
+/* 📦 الطلبات */
 
 async function loadOrders(){
 
@@ -623,20 +816,18 @@ const r=await fetch(
 
 const orders=await r.json();
 
-const box=
-document.getElementById("orders");
+const box=document.getElementById("orders");
 
 if(!orders.length){
 
 box.innerHTML=
-'<div class="empty">لا توجد طلبات حتى الآن 📦</div>';
+'<div class="empty">📦 لا توجد طلبات حتى الآن</div>';
 
 return;
 
 }
 
-box.innerHTML=
-orders.reverse().map(o=>`
+box.innerHTML=orders.reverse().map(o=>`
 
 <div class="order">
 
@@ -685,6 +876,9 @@ return s;
 
 }
 
+
+/* 🔗 الدعوات */
+
 function invite(){
 
 const u=user();
@@ -699,7 +893,7 @@ const share=
 encodeURIComponent(link)+
 "&text="+
 encodeURIComponent(
-"🎮 انضم إلى UC HUB واجمع نقاطك 🪙🔥"
+"🎮🔥 انضم إلى UC HUB واجمع نقاطك واستبدلها بـ UC! 🪙💎"
 );
 
 if(tg?.openTelegramLink){
@@ -710,7 +904,8 @@ tg.openTelegramLink(share);
 
 navigator.share({
 title:"UC HUB",
-text:"🎮 انضم إلى UC HUB واجمع نقاطك 🪙🔥",
+text:
+"🎮🔥 انضم إلى UC HUB واجمع نقاطك واستبدلها بـ UC! 🪙💎",
 url:link
 });
 
@@ -730,4 +925,4 @@ loadUser();
 </script>
 
 </body>
-  </html>
+</html>
