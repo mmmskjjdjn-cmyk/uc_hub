@@ -12,7 +12,7 @@ const app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const PORT = process.env.PORT || 3000;
-const WEB_APP_URL = process.env.WEB_APP_URL;
+const WEB_APP_URL = "https://uc-hubuc-hub.onrender.com";;
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "uc_hub_secret";
 
 app.use(express.json());
