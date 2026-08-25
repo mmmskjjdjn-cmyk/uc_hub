@@ -5,36 +5,27 @@ const { Telegraf, Markup } = require("telegraf");
 const {
   getUser,
   addReferral,
+  claimDailyReward,
   addStarsPurchase,
-  createOrder
+  createOrder,
+  getOrders,
+  loadData,
+  saveData
 } = require("./database");
 
 const app = express();
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const bot =
-  new Telegraf(
-    process.env.BOT_TOKEN
-  );
-
-const PORT =
-  process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 const WEB_APP_URL =
   "https://uc-hubuc-hub.onrender.com";
 
 const WEBHOOK_SECRET =
-  process.env.WEBHOOK_SECRET ||
-  "uc_hub_secret";
+  process.env.WEBHOOK_SECRET || "uc_hub_secret";
 
-/*
-  Telegram Stars packages
-
-  100 ⭐  = 50 points
-  200 ⭐  = 100 points
-  500 ⭐  = 250 points
-  1000 ⭐ = 500 points
-  2000 ⭐ = 1000 points
-*/
+const CHANNEL_USERNAME =
+  "@FREEUC_60";
 
 const STAR_PACKAGES = {
   100: 50,
@@ -44,116 +35,183 @@ const STAR_PACKAGES = {
   2000: 1000
 };
 
-app.use(
-  express.json()
-);
-
-app.use(
-  express.static(__dirname)
-);
+app.use(express.json());
+app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
-
   res.sendFile(
-    path.join(
-      __dirname,
-      "index.html"
-    )
+    path.join(__dirname, "index.html")
   );
-
 });
-
-/* =========================
-   START BOT
-========================= */
 
 bot.start(async (ctx) => {
 
-  const user =
-    ctx.from;
+  const user = ctx.from;
 
   getUser(
     user.id,
-    user.first_name ||
-    "User"
+    user.first_name || "User"
   );
 
   const payload =
-    ctx.message.text
-      .split(" ")[1];
+    ctx.message.text.split(" ")[1];
 
   if (
     payload &&
     payload.startsWith("ref_")
   ) {
-
-    const referrerId =
-      payload.replace(
-        "ref_",
-        ""
-      );
-
     addReferral(
       user.id,
-      referrerId
+      payload.replace("ref_", "")
     );
   }
 
   await ctx.reply(
-
     `🎮 أهلاً بك في UC HUB\n\n` +
     `🪙 اجمع النقاط واستبدلها بالمكافآت!`,
-
-    WEB_APP_URL
-
-      ? Markup.inlineKeyboard([
-          [
-            Markup.button.webApp(
-              "🚀 فتح UC HUB",
-              WEB_APP_URL
-            )
-          ]
-        ])
-
-      : undefined
+    Markup.inlineKeyboard([
+      [
+        Markup.button.webApp(
+          "🚀 فتح UC HUB",
+          WEB_APP_URL
+        )
+      ]
+    ])
   );
-
 });
-
-/* =========================
-   USER API
-========================= */
 
 app.get(
   "/api/user/:id",
   (req, res) => {
 
     const user =
-      getUser(
-        req.params.id
-      );
+      getUser(req.params.id);
 
     res.json({
-
       id: user.id,
-
-      firstName:
-        user.firstName,
-
-      points:
-        user.points,
-
-      referrals:
-        user.referrals
-
+      firstName: user.firstName,
+      points: user.points,
+      referrals: user.referrals
     });
-
   }
 );
 
-/* =========================
-   CREATE UC ORDER
-========================= */
+app.post(
+  "/api/rewards/daily",
+  (req, res) => {
+
+    const userId =
+      req.body.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "المستخدم غير معروف"
+      });
+    }
+
+    res.json(
+      claimDailyReward(userId)
+    );
+  }
+);
+
+app.get(
+  "/api/rewards/channel",
+  async (req, res) => {
+
+    try {
+
+      const userId =
+        Number(req.query.userId);
+
+      if (!userId) {
+        return res.json({
+          success: false,
+          message: "المستخدم غير معروف"
+        });
+      }
+
+      const member =
+        await bot.telegram.getChatMember(
+          CHANNEL_USERNAME,
+          userId
+        );
+
+      const allowed = [
+        "creator",
+        "administrator",
+        "member"
+      ];
+
+      if (!allowed.includes(member.status)) {
+        return res.json({
+          success: false,
+          joined: false,
+          message:
+            "انضم إلى القناة أولاً 📢"
+        });
+      }
+
+      const data = loadData();
+
+      const user =
+        data.users[String(userId)];
+
+      if (!user) {
+        return res.json({
+          success: false
+        });
+      }
+
+      if (user.channelRewardClaimed) {
+        return res.json({
+          success: false,
+          joined: true,
+          alreadyClaimed: true,
+          message:
+            "أخذت مكافأة القناة مسبقاً 🎁"
+        });
+      }
+
+      user.points += 1;
+
+      user.channelRewardClaimed = true;
+
+      saveData(data);
+
+      res.json({
+        success: true,
+        joined: true,
+        points: 1,
+        balance: user.points
+      });
+
+    } catch (error) {
+
+      console.error(
+        "Channel check:",
+        error
+      );
+
+      res.status(500).json({
+        success: false,
+        message:
+          "البوت يجب أن يكون موجوداً في القناة"
+      });
+    }
+  }
+);
+
+app.get(
+  "/api/orders/:userId",
+  (req, res) => {
+
+    res.json(
+      getOrders(req.params.userId)
+    );
+  }
+);
 
 app.post(
   "/api/order",
@@ -172,36 +230,23 @@ app.post(
       !cost ||
       !playerId
     ) {
-
-      return res.status(400)
-        .json({
-
-          success: false,
-
-          message:
-            "بيانات الطلب ناقصة"
-
-        });
-
+      return res.status(400).json({
+        success: false,
+        message:
+          "بيانات الطلب ناقصة"
+      });
     }
 
-    const result =
+    res.json(
       createOrder(
         userId,
         Number(uc),
         Number(cost),
         String(playerId)
-      );
-
-    res.json(result);
-
+      )
+    );
   }
 );
-
-/* =========================
-   CREATE TELEGRAM STARS
-   INVOICE
-========================= */
 
 app.post(
   "/api/stars/invoice",
@@ -210,46 +255,31 @@ app.post(
     try {
 
       const stars =
-        Number(
-          req.body.stars
-        );
+        Number(req.body.stars);
 
       const points =
         STAR_PACKAGES[stars];
 
       if (!points) {
-
-        return res.status(400)
-          .json({
-
-            success: false,
-
-            message:
-              "باقة Stars غير صحيحة"
-
-          });
-
+        return res.status(400).json({
+          success: false,
+          message:
+            "باقة غير صحيحة"
+        });
       }
-
-      /*
-        Payload داخلي للبوت.
-        لا نعتمد على النقاط القادمة من التطبيق.
-      */
-
-      const payload =
-        `stars_${stars}_${points}`;
 
       const invoiceLink =
         await bot.telegram.callApi(
           "createInvoiceLink",
           {
             title:
-              `🪙 ${points} نقطة`,
+              `${points} نقطة`,
 
             description:
-              `شراء ${points} نقطة مقابل ${stars} Telegram Stars`,
+              `شراء ${points} نقطة`,
 
-            payload,
+            payload:
+              `stars_${stars}_${points}`,
 
             currency: "XTR",
 
@@ -257,244 +287,121 @@ app.post(
               {
                 label:
                   `${points} نقطة`,
-
-                amount:
-                  stars
+                amount: stars
               }
             ]
           }
         );
 
       res.json({
-
         success: true,
-
-        invoiceLink,
-
-        stars,
-
-        points
-
+        invoiceLink
       });
 
     } catch (error) {
 
-      console.error(
-        "Invoice creation error:",
-        error
-      );
+      console.error(error);
 
-      res.status(500)
-        .json({
-
-          success: false,
-
-          message:
-            "تعذر إنشاء فاتورة الدفع"
-
-        });
-
+      res.status(500).json({
+        success: false,
+        message:
+          "تعذر إنشاء الفاتورة"
+      });
     }
-
   }
 );
-
-/* =========================
-   PRE-CHECKOUT
-========================= */
 
 bot.on(
   "pre_checkout_query",
   async (ctx) => {
 
-    try {
+    const query =
+      ctx.update.pre_checkout_query;
 
-      const query =
-        ctx.update
-          .pre_checkout_query;
-
-      const payload =
-        query.invoice_payload;
-
-      const match =
-        payload.match(
-          /^stars_(\d+)_(\d+)$/
-        );
-
-      if (!match) {
-
-        await ctx.answerPreCheckoutQuery(
-          false,
-          "فاتورة غير صالحة"
-        );
-
-        return;
-      }
-
-      const stars =
-        Number(match[1]);
-
-      const points =
-        Number(match[2]);
-
-      const expectedPoints =
-        STAR_PACKAGES[stars];
-
-      if (
-        !expectedPoints ||
-        expectedPoints !== points ||
-        query.currency !== "XTR" ||
-        Number(query.total_amount) !== stars
-      ) {
-
-        await ctx.answerPreCheckoutQuery(
-          false,
-          "بيانات الدفع غير صحيحة"
-        );
-
-        return;
-      }
-
-      await ctx.answerPreCheckoutQuery(
-        true
+    const match =
+      query.invoice_payload.match(
+        /^stars_(\d+)_(\d+)$/
       );
 
-    } catch (error) {
-
-      console.error(
-        "Pre-checkout error:",
-        error
+    if (!match) {
+      return ctx.answerPreCheckoutQuery(
+        false,
+        "فاتورة غير صالحة"
       );
-
-      try {
-
-        await ctx.answerPreCheckoutQuery(
-          false,
-          "حدث خطأ أثناء التحقق من الدفع"
-        );
-
-      } catch {}
-
     }
 
+    const stars =
+      Number(match[1]);
+
+    const points =
+      Number(match[2]);
+
+    if (
+      STAR_PACKAGES[stars] !== points ||
+      query.currency !== "XTR" ||
+      Number(query.total_amount) !== stars
+    ) {
+      return ctx.answerPreCheckoutQuery(
+        false,
+        "بيانات الدفع غير صحيحة"
+      );
+    }
+
+    await ctx.answerPreCheckoutQuery(
+      true
+    );
   }
 );
-
-/* =========================
-   SUCCESSFUL PAYMENT
-========================= */
 
 bot.on(
   "message",
   async (ctx) => {
 
     const payment =
-      ctx.message
-        .successful_payment;
+      ctx.message.successful_payment;
 
-    if (!payment) {
+    if (!payment) return;
+
+    const match =
+      payment.invoice_payload.match(
+        /^stars_(\d+)_(\d+)$/
+      );
+
+    if (!match) return;
+
+    const stars =
+      Number(match[1]);
+
+    const points =
+      Number(match[2]);
+
+    if (
+      payment.currency !== "XTR" ||
+      STAR_PACKAGES[stars] !== points ||
+      Number(payment.total_amount) !== stars
+    ) {
       return;
     }
 
-    try {
-
-      if (
-        payment.currency !== "XTR"
-      ) {
-
-        return;
-      }
-
-      const payload =
-        payment.invoice_payload;
-
-      const match =
-        payload.match(
-          /^stars_(\d+)_(\d+)$/
-        );
-
-      if (!match) {
-        return;
-      }
-
-      const stars =
-        Number(match[1]);
-
-      const points =
-        Number(match[2]);
-
-      const expectedPoints =
-        STAR_PACKAGES[stars];
-
-      if (
-        !expectedPoints ||
-        expectedPoints !== points ||
-        Number(payment.total_amount) !== stars
-      ) {
-
-        console.error(
-          "Invalid successful payment:",
-          payment
-        );
-
-        return;
-      }
-
-      const result =
-        addStarsPurchase(
-
-          ctx.from.id,
-
-          stars,
-
-          points,
-
-          payment.telegram_payment_charge_id
-
-        );
-
-      if (
-        result.success
-      ) {
-
-        await ctx.reply(
-
-          `🎉 تم الدفع بنجاح!\n\n` +
-
-          `⭐ دفعت: ${stars} Stars\n` +
-
-          `🪙 تمت إضافة: ${points} نقطة\n\n` +
-
-          `💰 رصيدك الجديد: ${result.newBalance} نقطة`
-
-        );
-
-      } else if (
-        result.duplicate
-      ) {
-
-        console.log(
-          "Duplicate payment ignored:",
-          payment.telegram_payment_charge_id
-        );
-
-      }
-
-    } catch (error) {
-
-      console.error(
-        "Successful payment error:",
-        error
+    const result =
+      addStarsPurchase(
+        ctx.from.id,
+        stars,
+        points,
+        payment.telegram_payment_charge_id
       );
 
-    }
+    if (result.success) {
 
+      await ctx.reply(
+        `🎉 تم الدفع بنجاح!\n\n` +
+        `⭐ ${stars} Stars\n` +
+        `🪙 +${points} نقطة\n\n` +
+        `💰 رصيدك: ${result.newBalance} نقطة`
+      );
+    }
   }
 );
-
-/* =========================
-   WEBHOOK
-========================= */
 
 app.post(
   `/telegram/${WEBHOOK_SECRET}`,
@@ -510,20 +417,12 @@ app.post(
 
     } catch (error) {
 
-      console.error(
-        error
-      );
+      console.error(error);
 
       res.sendStatus(500);
-
     }
-
   }
 );
-
-/* =========================
-   START SERVER
-========================= */
 
 app.listen(
   PORT,
@@ -549,8 +448,6 @@ app.listen(
         "Webhook setup failed:",
         error
       );
-
     }
-
   }
 );
