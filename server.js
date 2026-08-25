@@ -9,8 +9,12 @@ const WEB_APP_URL = process.env.WEB_APP_URL;
 
 app.use(express.json());
 
+const path = require("path");
+
+app.use(express.static(path.join(__dirname)));
+
 app.get("/", (req, res) => {
-  res.send("UC HUB is online 🚀");
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 bot.start(async (ctx) => {
