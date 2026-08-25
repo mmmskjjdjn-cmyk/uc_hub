@@ -9,7 +9,8 @@ function loadData() {
       users: {},
       referrals: {},
       orders: [],
-      payments: []
+      payments: {},
+      dailyRewards: {}
     };
   }
 
@@ -18,19 +19,20 @@ function loadData() {
       fs.readFileSync(DATA_FILE, "utf8")
     );
 
-    if (!data.users) data.users = {};
-    if (!data.referrals) data.referrals = {};
-    if (!data.orders) data.orders = [];
-    if (!data.payments) data.payments = [];
+    data.users ||= {};
+    data.referrals ||= {};
+    data.orders ||= [];
+    data.payments ||= {};
+    data.dailyRewards ||= {};
 
     return data;
-
   } catch {
     return {
       users: {},
       referrals: {},
       orders: [],
-      payments: []
+      payments: {},
+      dailyRewards: {}
     };
   }
 }
@@ -52,14 +54,10 @@ function getUser(userId, firstName = "User") {
       firstName,
       points: 0,
       referrals: 0,
+      channelRewardClaimed: false,
       createdAt: new Date().toISOString()
     };
 
-    saveData(data);
-
-  } else if (firstName && data.users[id].firstName === "User") {
-
-    data.users[id].firstName = firstName;
     saveData(data);
   }
 
@@ -75,23 +73,11 @@ function addReferral(newUserId, referrerId) {
   if (newId === refId) return false;
 
   if (!data.users[newId]) {
-    data.users[newId] = {
-      id: newId,
-      firstName: "User",
-      points: 0,
-      referrals: 0,
-      createdAt: new Date().toISOString()
-    };
+    getUser(newId);
   }
 
   if (!data.users[refId]) {
-    data.users[refId] = {
-      id: refId,
-      firstName: "User",
-      points: 0,
-      referrals: 0,
-      createdAt: new Date().toISOString()
-    };
+    getUser(refId);
   }
 
   if (data.referrals[newId]) {
@@ -108,13 +94,34 @@ function addReferral(newUserId, referrerId) {
   return true;
 }
 
-function getPoints(userId) {
+function claimDailyReward(userId) {
   const data = loadData();
+  const id = String(userId);
 
-  const user =
-    data.users[String(userId)];
+  const user = data.users[id] || getUser(id);
 
-  return user ? user.points : 0;
+  const today = new Date()
+    .toISOString()
+    .slice(0, 10);
+
+  if (data.dailyRewards[id] === today) {
+    return {
+      success: false,
+      message: "أخذت هديتك اليومية اليوم 🎁"
+    };
+  }
+
+  data.dailyRewards[id] = today;
+
+  user.points += 1;
+
+  saveData(data);
+
+  return {
+    success: true,
+    points: 1,
+    balance: user.points
+  };
 }
 
 function addStarsPurchase(
@@ -124,50 +131,32 @@ function addStarsPurchase(
   chargeId
 ) {
   const data = loadData();
-
   const id = String(userId);
 
-  if (!data.users[id]) {
-    data.users[id] = {
-      id,
-      firstName: "User",
-      points: 0,
-      referrals: 0,
-      createdAt: new Date().toISOString()
+  if (data.payments[chargeId]) {
+    return {
+      success: false,
+      duplicate: true
     };
   }
 
-  // منع إضافة نفس عملية الدفع مرتين
-  const alreadyPaid =
-    data.payments.some(
-      payment =>
-        payment.chargeId === chargeId
-    );
-
-  if (alreadyPaid) {
-    return {
-      success: false,
-      duplicate: true,
-      message: "عملية الدفع مسجلة مسبقاً"
-    };
+  if (!data.users[id]) {
+    getUser(id);
   }
 
   data.users[id].points += Number(points);
 
-  data.payments.push({
-    id: Date.now().toString(),
+  data.payments[chargeId] = {
     userId: id,
     stars: Number(stars),
     points: Number(points),
-    chargeId,
     createdAt: new Date().toISOString()
-  });
+  };
 
   saveData(data);
 
   return {
     success: true,
-    pointsAdded: Number(points),
     newBalance: data.users[id].points
   };
 }
@@ -208,8 +197,18 @@ function createOrder(
 
   return {
     success: true,
-    order
+    order,
+    balance: user.points
   };
+}
+
+function getOrders(userId) {
+  const data = loadData();
+
+  return data.orders.filter(
+    order =>
+      order.userId === String(userId)
+  );
 }
 
 module.exports = {
@@ -217,7 +216,8 @@ module.exports = {
   saveData,
   getUser,
   addReferral,
-  getPoints,
+  claimDailyReward,
   addStarsPurchase,
-  createOrder
+  createOrder,
+  getOrders
 };
