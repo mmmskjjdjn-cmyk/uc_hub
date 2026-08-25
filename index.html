@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
 
 <title>UC HUB</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -18,355 +25,617 @@
 
 :root {
   --bg: #050711;
-  --card: rgba(15, 20, 38, 0.78);
-  --border: rgba(0, 212, 255, 0.22);
+  --card: rgba(14, 20, 38, .82);
   --blue: #00d9ff;
-  --purple: #7c4dff;
+  --purple: #7957ff;
   --gold: #ffd43b;
   --text: #ffffff;
   --muted: #9ba6bd;
 }
 
 body {
+
   min-height: 100vh;
+
   color: var(--text);
+
   background:
-    radial-gradient(circle at 15% 10%, rgba(0, 217, 255, .18), transparent 30%),
-    radial-gradient(circle at 90% 20%, rgba(124, 77, 255, .22), transparent 32%),
-    radial-gradient(circle at 50% 100%, rgba(0, 120, 255, .14), transparent 35%),
+
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(0,217,255,.18),
+      transparent 30%
+    ),
+
+    radial-gradient(
+      circle at 90% 20%,
+      rgba(121,87,255,.22),
+      transparent 32%
+    ),
+
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(0,120,255,.14),
+      transparent 35%
+    ),
+
     var(--bg);
+
   overflow-x: hidden;
 }
 
-/* خلفية متحركة */
 body::before,
 body::after {
+
   content: "";
+
   position: fixed;
-  width: 260px;
-  height: 260px;
+
+  width: 250px;
+  height: 250px;
+
   border-radius: 50%;
+
   filter: blur(90px);
-  opacity: .22;
+
+  opacity: .2;
+
   pointer-events: none;
+
   z-index: -1;
 }
 
 body::before {
+
   background: var(--blue);
+
   top: -100px;
   left: -100px;
-  animation: floatOne 7s infinite alternate ease-in-out;
+
+  animation:
+    float1 7s infinite alternate;
 }
 
 body::after {
+
   background: var(--purple);
+
   right: -100px;
   bottom: -100px;
-  animation: floatTwo 8s infinite alternate ease-in-out;
+
+  animation:
+    float2 8s infinite alternate;
 }
 
-@keyframes floatOne {
+@keyframes float1 {
+
   from {
-    transform: translate(0, 0);
+    transform: translate(0,0);
   }
+
   to {
-    transform: translate(80px, 60px);
+    transform: translate(70px,60px);
   }
+
 }
 
-@keyframes floatTwo {
+@keyframes float2 {
+
   from {
-    transform: translate(0, 0);
+    transform: translate(0,0);
   }
+
   to {
-    transform: translate(-70px, -60px);
+    transform: translate(-70px,-60px);
   }
+
 }
 
 .app {
-  width: 100%;
+
   max-width: 480px;
+
   margin: auto;
-  padding: 18px 16px 30px;
+
+  padding:
+    18px
+    16px
+    35px;
 }
 
-/* الشعار */
 .logo {
+
   text-align: center;
-  margin: 8px 0 25px;
+
   font-size: 38px;
+
   font-weight: 1000;
+
   letter-spacing: 3px;
+
+  margin:
+    8px
+    0
+    15px;
+
   text-shadow:
-    0 0 10px rgba(0, 217, 255, .7),
-    0 0 30px rgba(0, 217, 255, .3);
+    0 0 10px rgba(0,217,255,.7),
+    0 0 30px rgba(0,217,255,.3);
 }
 
 .logo .uc {
   color: var(--blue);
 }
 
-.logo .hub {
-  color: white;
-}
-
-/* حالة الاتصال */
 .status {
+
   width: fit-content;
-  margin: 0 auto 18px;
-  padding: 7px 13px;
+
+  margin:
+    0
+    auto
+    20px;
+
+  padding:
+    7px
+    13px;
+
   border-radius: 30px;
-  background: rgba(0, 255, 160, .08);
-  border: 1px solid rgba(0, 255, 160, .25);
+
+  background:
+    rgba(0,255,160,.08);
+
+  border:
+    1px solid
+    rgba(0,255,160,.25);
+
   color: #65ffc0;
+
   font-size: 12px;
 }
 
 .status span {
+
   display: inline-block;
+
   width: 7px;
   height: 7px;
+
   border-radius: 50%;
+
   background: #31ff9a;
-  box-shadow: 0 0 10px #31ff9a;
+
+  box-shadow:
+    0 0 10px #31ff9a;
+
   margin-left: 6px;
 }
 
-/* الترحيب */
 .welcome {
+
   font-size: 23px;
+
   font-weight: 900;
+
   margin-bottom: 14px;
 }
 
-/* الرصيد */
 .balance {
+
   position: relative;
+
   overflow: hidden;
+
   padding: 23px;
+
   border-radius: 25px;
+
   background:
     linear-gradient(
       135deg,
-      rgba(0, 217, 255, .14),
-      rgba(124, 77, 255, .12)
+      rgba(0,217,255,.14),
+      rgba(121,87,255,.12)
     ),
     var(--card);
-  border: 1px solid var(--border);
-  box-shadow:
-    0 15px 45px rgba(0, 0, 0, .3),
-    inset 0 1px 0 rgba(255,255,255,.05);
-}
 
-.balance::after {
-  content: "🪙";
-  position: absolute;
-  left: 18px;
-  top: 14px;
-  font-size: 48px;
-  opacity: .09;
+  border:
+    1px solid
+    rgba(0,217,255,.2);
+
+  box-shadow:
+    0 15px 45px
+    rgba(0,0,0,.3);
 }
 
 .balance-title {
+
   color: var(--muted);
+
   font-size: 13px;
 }
 
 .points {
+
   margin-top: 6px;
+
   font-size: 39px;
+
   font-weight: 1000;
+
   color: var(--gold);
-  text-shadow: 0 0 20px rgba(255, 212, 59, .3);
+
+  text-shadow:
+    0 0 20px
+    rgba(255,212,59,.3);
 }
 
 .section-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 27px 3px 13px;
+
+  margin:
+    27px
+    3px
+    13px;
+
   font-size: 21px;
+
   font-weight: 900;
 }
 
-.section-title small {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: normal;
-}
-
-/* البطاقات */
 .cards {
+
   display: grid;
-  grid-template-columns: 1fr 1fr;
+
+  grid-template-columns:
+    1fr 1fr;
+
   gap: 12px;
 }
 
 .card {
-  position: relative;
-  overflow: hidden;
+
   padding: 18px 13px;
+
   text-align: center;
+
   border-radius: 21px;
+
   background: var(--card);
-  border: 1px solid var(--border);
+
+  border:
+    1px solid
+    rgba(0,217,255,.18);
+
   backdrop-filter: blur(15px);
-  box-shadow:
-    0 12px 35px rgba(0, 0, 0, .25),
-    inset 0 1px 0 rgba(255,255,255,.04);
-  transition: .2s ease;
+
+  transition: .2s;
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(0, 217, 255, .5);
-  box-shadow:
-    0 15px 40px rgba(0, 217, 255, .1);
+
+  transform:
+    translateY(-4px);
+
+  border-color:
+    rgba(0,217,255,.5);
 }
 
-.card::before {
-  content: "";
-  position: absolute;
-  width: 90px;
-  height: 90px;
-  background: var(--blue);
-  border-radius: 50%;
-  filter: blur(50px);
-  opacity: .08;
-  top: -40px;
-  right: -35px;
-}
+.icon {
 
-.uc-icon {
   font-size: 30px;
+
   margin-bottom: 6px;
 }
 
 .uc {
+
   font-size: 23px;
+
   font-weight: 1000;
 }
 
 .price {
-  margin: 8px 0 14px;
+
+  margin:
+    8px
+    0
+    14px;
+
   color: var(--gold);
+
   font-size: 14px;
+
   font-weight: 900;
 }
 
-/* الأزرار */
 button {
+
   border: 0;
+
   outline: none;
+
   cursor: pointer;
-  transition: .18s ease;
+
+  transition: .18s;
 }
 
 .buy {
+
   width: 100%;
+
   padding: 12px 8px;
+
   border-radius: 13px;
+
   color: #041017;
-  background: linear-gradient(
-    135deg,
-    var(--blue),
-    #72efff
-  );
-  font-weight: 1000;
-  box-shadow:
-    0 7px 20px rgba(0, 217, 255, .18);
-}
 
-.buy:active {
-  transform: scale(.96);
-}
-
-/* الدعوات */
-.invite {
-  margin-top: 17px;
-  padding: 20px;
-  border-radius: 22px;
   background:
     linear-gradient(
       135deg,
-      rgba(124, 77, 255, .15),
-      rgba(0, 217, 255, .08)
+      var(--blue),
+      #72efff
+    );
+
+  font-weight: 1000;
+
+  box-shadow:
+    0 7px 20px
+    rgba(0,217,255,.18);
+}
+
+.buy:active {
+
+  transform:
+    scale(.96);
+}
+
+/* شراء النقاط */
+
+.stars-box {
+
+  margin-top: 20px;
+
+  padding: 20px;
+
+  border-radius: 23px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,212,59,.11),
+      rgba(121,87,255,.12)
     ),
     var(--card);
-  border: 1px solid rgba(124, 77, 255, .3);
+
+  border:
+    1px solid
+    rgba(255,212,59,.25);
+
+  box-shadow:
+    0 15px 40px
+    rgba(0,0,0,.25);
+}
+
+.stars-title {
+
+  font-size: 20px;
+
+  font-weight: 1000;
+
+  margin-bottom: 6px;
+}
+
+.stars-subtitle {
+
+  color: var(--muted);
+
+  font-size: 13px;
+
+  line-height: 1.6;
+
+  margin-bottom: 15px;
+}
+
+.stars-cards {
+
+  display: grid;
+
+  gap: 9px;
+}
+
+.star-card {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  gap: 10px;
+
+  padding: 13px;
+
+  border-radius: 15px;
+
+  background:
+    rgba(255,255,255,.035);
+
+  border:
+    1px solid
+    rgba(255,255,255,.06);
+}
+
+.star-info {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.star-price {
+
+  color: var(--gold);
+
+  font-size: 16px;
+
+  font-weight: 1000;
+}
+
+.star-points {
+
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+.star-btn {
+
+  min-width: 100px;
+
+  padding: 10px;
+
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffd43b,
+      #ffed85
+    );
+
+  color: #171200;
+
+  font-weight: 1000;
+}
+
+.star-btn:active {
+
+  transform:
+    scale(.95);
+}
+
+/* الدعوات */
+
+.invite {
+
+  margin-top: 17px;
+
+  padding: 20px;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(121,87,255,.15),
+      rgba(0,217,255,.08)
+    ),
+    var(--card);
+
+  border:
+    1px solid
+    rgba(121,87,255,.3);
 }
 
 .invite h3 {
+
   font-size: 19px;
+
   margin-bottom: 8px;
 }
 
 .invite p {
+
   color: var(--muted);
+
   line-height: 1.7;
+
   font-size: 13px;
+
   margin-bottom: 15px;
 }
 
 .invite-btn {
+
   width: 100%;
+
   padding: 13px;
+
   border-radius: 14px;
+
   color: white;
-  background: linear-gradient(
-    135deg,
-    var(--purple),
-    #9c7cff
-  );
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--purple),
+      #9c7cff
+    );
+
   font-weight: 900;
-  box-shadow:
-    0 8px 25px rgba(124, 77, 255, .2);
 }
 
-/* الشريط السفلي */
+/* التنقل */
+
 .nav {
+
   position: sticky;
+
   bottom: 10px;
+
   z-index: 10;
 
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+
+  grid-template-columns:
+    repeat(4,1fr);
+
   gap: 5px;
 
   margin-top: 24px;
+
   padding: 8px;
 
   border-radius: 20px;
 
-  background: rgba(8, 12, 22, .88);
-  border: 1px solid rgba(255,255,255,.07);
+  background:
+    rgba(8,12,22,.88);
 
-  backdrop-filter: blur(18px);
+  border:
+    1px solid
+    rgba(255,255,255,.07);
 
-  box-shadow:
-    0 15px 40px rgba(0,0,0,.45);
+  backdrop-filter:
+    blur(18px);
 }
 
 .nav button {
-  padding: 10px 4px;
+
+  padding:
+    10px
+    4px;
+
   border-radius: 13px;
-  background: transparent;
+
+  background:
+    transparent;
+
   color: #8994aa;
+
   font-size: 11px;
 }
 
 .nav button:first-child {
+
   color: var(--blue);
-  background: rgba(0,217,255,.08);
+
+  background:
+    rgba(0,217,255,.08);
 }
 
-.nav button:active {
-  transform: scale(.94);
-}
-
-/* الهاتف الصغير */
-@media (max-width: 360px) {
+@media(max-width:360px) {
 
   .cards {
     grid-template-columns: 1fr;
@@ -376,11 +645,10 @@ button {
     font-size: 32px;
   }
 
-  .points {
-    font-size: 34px;
-  }
 }
+
 </style>
+
 </head>
 
 <body>
@@ -388,16 +656,27 @@ button {
 <div class="app">
 
   <div class="logo">
-    <span class="uc">UC</span>
-    <span class="hub"> HUB</span>
+
+    <span class="uc">
+      UC
+    </span>
+
+    HUB
+
   </div>
 
   <div class="status">
+
     <span></span>
+
     UC HUB Online
+
   </div>
 
-  <div class="welcome" id="welcome">
+  <div
+    class="welcome"
+    id="welcome"
+  >
     أهلاً بك 👋
   </div>
 
@@ -407,22 +686,28 @@ button {
       رصيد النقاط
     </div>
 
-    <div class="points" id="points">
+    <div
+      class="points"
+      id="points"
+    >
       0 🪙
     </div>
 
   </div>
 
+  <!-- متجر UC -->
+
   <div class="section-title">
-    <span>🎮 متجر UC</span>
-    <small>اختر الباقة</small>
+    🎮 متجر UC
   </div>
 
   <div class="cards">
 
     <div class="card">
 
-      <div class="uc-icon">💎</div>
+      <div class="icon">
+        💎
+      </div>
 
       <div class="uc">
         60 UC
@@ -434,7 +719,7 @@ button {
 
       <button
         class="buy"
-        onclick="buyUC(60, 30)"
+        onclick="buyUC(60,30)"
       >
         استبدال
       </button>
@@ -443,7 +728,9 @@ button {
 
     <div class="card">
 
-      <div class="uc-icon">💎</div>
+      <div class="icon">
+        💎
+      </div>
 
       <div class="uc">
         325 UC
@@ -455,7 +742,7 @@ button {
 
       <button
         class="buy"
-        onclick="buyUC(325, 70)"
+        onclick="buyUC(325,70)"
       >
         استبدال
       </button>
@@ -464,7 +751,9 @@ button {
 
     <div class="card">
 
-      <div class="uc-icon">💎</div>
+      <div class="icon">
+        💎
+      </div>
 
       <div class="uc">
         660 UC
@@ -476,7 +765,7 @@ button {
 
       <button
         class="buy"
-        onclick="buyUC(660, 100)"
+        onclick="buyUC(660,100)"
       >
         استبدال
       </button>
@@ -485,7 +774,9 @@ button {
 
     <div class="card">
 
-      <div class="uc-icon">💎</div>
+      <div class="icon">
+        💎
+      </div>
 
       <div class="uc">
         1800 UC
@@ -497,7 +788,7 @@ button {
 
       <button
         class="buy"
-        onclick="buyUC(1800, 220)"
+        onclick="buyUC(1800,220)"
       >
         استبدال
       </button>
@@ -506,6 +797,142 @@ button {
 
   </div>
 
+  <!-- شراء النقاط -->
+
+  <div class="stars-box">
+
+    <div class="stars-title">
+      ⭐ شراء النقاط
+    </div>
+
+    <div class="stars-subtitle">
+      اشحن رصيدك باستخدام Telegram Stars
+      واحصل على النقاط مباشرة بعد نجاح الدفع.
+    </div>
+
+    <div class="stars-cards">
+
+      <div class="star-card">
+
+        <div class="star-info">
+
+          <div class="star-price">
+            ⭐ 100 Stars
+          </div>
+
+          <div class="star-points">
+            تحصل على 50 🪙 نقطة
+          </div>
+
+        </div>
+
+        <button
+          class="star-btn"
+          onclick="buyStars(100)"
+        >
+          شراء
+        </button>
+
+      </div>
+
+      <div class="star-card">
+
+        <div class="star-info">
+
+          <div class="star-price">
+            ⭐ 200 Stars
+          </div>
+
+          <div class="star-points">
+            تحصل على 100 🪙 نقطة
+          </div>
+
+        </div>
+
+        <button
+          class="star-btn"
+          onclick="buyStars(200)"
+        >
+          شراء
+        </button>
+
+      </div>
+
+      <div class="star-card">
+
+        <div class="star-info">
+
+          <div class="star-price">
+            ⭐ 500 Stars
+          </div>
+
+          <div class="star-points">
+            تحصل على 250 🪙 نقطة
+          </div>
+
+        </div>
+
+        <button
+          class="star-btn"
+          onclick="buyStars(500)"
+        >
+          شراء
+        </button>
+
+      </div>
+
+      <div class="star-card">
+
+        <div class="star-info">
+
+          <div class="star-price">
+            ⭐ 1000 Stars
+          </div>
+
+          <div class="star-points">
+            تحصل على 500 🪙 نقطة
+          </div>
+
+        </div>
+
+        <button
+          class="star-btn"
+          onclick="buyStars(1000)"
+        >
+          شراء
+        </button>
+
+      </div>
+
+      <div class="star-card">
+
+        <div class="star-info">
+
+          <div class="star-price">
+            ⭐ 2000 Stars
+          </div>
+
+          <div class="star-points">
+            تحصل على 1000 🪙 نقطة
+          </div>
+
+        </div>
+
+        <button
+          class="star-btn"
+          onclick="buyStars(2000)"
+        >
+          شراء
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- الدعوات -->
+
   <div class="invite">
 
     <h3>
@@ -513,7 +940,8 @@ button {
     </h3>
 
     <p>
-      شارك رابط الدعوة الخاص بك واجمع النقاط.
+      شارك رابط الدعوة الخاص بك
+      واجمع النقاط.
       كل إحالة ناجحة تمنحك نقطة واحدة 🪙
     </p>
 
@@ -525,6 +953,8 @@ button {
     </button>
 
   </div>
+
+  <!-- التنقل -->
 
   <div class="nav">
 
@@ -554,57 +984,96 @@ button {
 
 <script>
 
-const tg = window.Telegram?.WebApp;
+const tg =
+  window.Telegram?.WebApp;
 
 if (tg) {
+
   tg.ready();
+
   tg.expand();
+
 }
 
 let points = 0;
 
+
+/* =========================
+   Telegram User
+========================= */
+
 function getTelegramUser() {
 
-  if (!tg || !tg.initDataUnsafe) {
+  if (
+    !tg ||
+    !tg.initDataUnsafe
+  ) {
+
     return null;
+
   }
 
-  return tg.initDataUnsafe.user || null;
+  return (
+    tg.initDataUnsafe.user ||
+    null
+  );
+
 }
+
+
+/* =========================
+   Load User
+========================= */
 
 async function loadUser() {
 
-  const user = getTelegramUser();
+  const user =
+    getTelegramUser();
 
   if (!user) {
+
     return;
+
   }
 
-  document.getElementById("welcome").textContent =
+  document.getElementById(
+    "welcome"
+  ).textContent =
     "أهلاً " +
-    (user.first_name || "بك") +
+    (
+      user.first_name ||
+      "بك"
+    ) +
     " 👋";
 
   try {
 
     const response =
-      await fetch("/api/user/" + user.id);
+      await fetch(
+        "/api/user/" +
+        user.id
+      );
 
     if (!response.ok) {
+
       return;
+
     }
 
     const data =
       await response.json();
 
     points =
-      Number(data.points || 0);
+      Number(
+        data.points || 0
+      );
 
-    document.getElementById("points")
-      .textContent =
+    document.getElementById(
+      "points"
+    ).textContent =
       points + " 🪙";
 
-  } catch (error) {
+  } catch(error) {
 
     console.log(
       "User loading error:",
@@ -612,20 +1081,32 @@ async function loadUser() {
     );
 
   }
+
 }
 
-function buyUC(uc, cost) {
 
-  if (points < cost) {
+/* =========================
+   Buy UC
+========================= */
+
+function buyUC(
+  uc,
+  cost
+) {
+
+  if (
+    points < cost
+  ) {
 
     alert(
-      "رصيدك غير كافٍ حالياً 😔\n\n" +
+      "رصيدك غير كافٍ 😔\n\n" +
       "تحتاج إلى " +
       cost +
       " نقطة."
     );
 
     return;
+
   }
 
   const playerID =
@@ -634,31 +1115,184 @@ function buyUC(uc, cost) {
     );
 
   if (!playerID) {
+
     return;
+
   }
 
   alert(
+
     "🎉 تم تجهيز طلبك!\n\n" +
+
     "💎 الباقة: " +
     uc +
     " UC\n" +
+
+    "🪙 التكلفة: " +
+    cost +
+    " نقطة\n" +
+
     "🆔 Player ID: " +
     playerID
+
   );
+
 }
 
-function invite() {
+
+/* =========================
+   Buy Telegram Stars
+========================= */
+
+async function buyStars(
+  stars
+) {
 
   const user =
     getTelegramUser();
 
-  if (!user || !user.id) {
+  if (!user) {
 
     alert(
       "افتح UC HUB من داخل Telegram أولاً 🔥"
     );
 
     return;
+
+  }
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/stars/invoice",
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            stars
+          })
+
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !data.success
+    ) {
+
+      alert(
+        data.message ||
+        "تعذر إنشاء عملية الدفع"
+      );
+
+      return;
+
+    }
+
+    if (
+      tg &&
+      tg.openInvoice
+    ) {
+
+      tg.openInvoice(
+        data.invoiceLink,
+        function(status) {
+
+          if (
+            status ===
+            "paid"
+          ) {
+
+            alert(
+              "🎉 تم الدفع بنجاح!\n\n" +
+              "سيتم تحديث نقاطك من البوت."
+            );
+
+            setTimeout(
+              loadUser,
+              1500
+            );
+
+          }
+
+          else if (
+            status ===
+            "cancelled"
+          ) {
+
+            alert(
+              "تم إلغاء الدفع."
+            );
+
+          }
+
+          else if (
+            status ===
+            "failed"
+          ) {
+
+            alert(
+              "فشلت عملية الدفع."
+            );
+
+          }
+
+        }
+      );
+
+    } else {
+
+      window.open(
+        data.invoiceLink,
+        "_blank"
+      );
+
+    }
+
+  } catch(error) {
+
+    console.error(
+      error
+    );
+
+    alert(
+      "حدث خطأ أثناء إنشاء الفاتورة."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   Invite
+========================= */
+
+function invite() {
+
+  const user =
+    getTelegramUser();
+
+  if (
+    !user ||
+    !user.id
+  ) {
+
+    alert(
+      "افتح UC HUB من داخل Telegram أولاً 🔥"
+    );
+
+    return;
+
   }
 
   const link =
@@ -683,6 +1317,7 @@ function invite() {
     );
 
     return;
+
   }
 
   if (
@@ -691,12 +1326,14 @@ function invite() {
 
     navigator.share({
 
-      title: "UC HUB",
+      title:
+        "UC HUB",
 
       text:
         "🎮 انضم إلى UC HUB واجمع نقاطك 🪙🔥",
 
-      url: link
+      url:
+        link
 
     });
 
@@ -708,6 +1345,7 @@ function invite() {
     );
 
   }
+
 }
 
 loadUser();
@@ -715,4 +1353,5 @@ loadUser();
 </script>
 
 </body>
-        </html>
+
+</html>
