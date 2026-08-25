@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>UC HUB</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -15,61 +16,187 @@
   font-family: Arial, sans-serif;
 }
 
+:root {
+  --bg: #050711;
+  --card: rgba(15, 20, 38, 0.78);
+  --border: rgba(0, 212, 255, 0.22);
+  --blue: #00d9ff;
+  --purple: #7c4dff;
+  --gold: #ffd43b;
+  --text: #ffffff;
+  --muted: #9ba6bd;
+}
+
 body {
-  background: #080b10;
-  color: white;
   min-height: 100vh;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(0, 217, 255, .18), transparent 30%),
+    radial-gradient(circle at 90% 20%, rgba(124, 77, 255, .22), transparent 32%),
+    radial-gradient(circle at 50% 100%, rgba(0, 120, 255, .14), transparent 35%),
+    var(--bg);
+  overflow-x: hidden;
+}
+
+/* خلفية متحركة */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .22;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::before {
+  background: var(--blue);
+  top: -100px;
+  left: -100px;
+  animation: floatOne 7s infinite alternate ease-in-out;
+}
+
+body::after {
+  background: var(--purple);
+  right: -100px;
+  bottom: -100px;
+  animation: floatTwo 8s infinite alternate ease-in-out;
+}
+
+@keyframes floatOne {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(80px, 60px);
+  }
+}
+
+@keyframes floatTwo {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-70px, -60px);
+  }
 }
 
 .app {
+  width: 100%;
   max-width: 480px;
   margin: auto;
-  padding: 20px;
+  padding: 18px 16px 30px;
 }
 
+/* الشعار */
 .logo {
   text-align: center;
-  font-size: 34px;
+  margin: 8px 0 25px;
+  font-size: 38px;
+  font-weight: 1000;
+  letter-spacing: 3px;
+  text-shadow:
+    0 0 10px rgba(0, 217, 255, .7),
+    0 0 30px rgba(0, 217, 255, .3);
+}
+
+.logo .uc {
+  color: var(--blue);
+}
+
+.logo .hub {
+  color: white;
+}
+
+/* حالة الاتصال */
+.status {
+  width: fit-content;
+  margin: 0 auto 18px;
+  padding: 7px 13px;
+  border-radius: 30px;
+  background: rgba(0, 255, 160, .08);
+  border: 1px solid rgba(0, 255, 160, .25);
+  color: #65ffc0;
+  font-size: 12px;
+}
+
+.status span {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #31ff9a;
+  box-shadow: 0 0 10px #31ff9a;
+  margin-left: 6px;
+}
+
+/* الترحيب */
+.welcome {
+  font-size: 23px;
   font-weight: 900;
-  letter-spacing: 2px;
-  margin: 15px 0 25px;
+  margin-bottom: 14px;
 }
 
-.logo span {
-  color: #f5b400;
-}
-
+/* الرصيد */
 .balance {
-  background: linear-gradient(135deg, #171d27, #0d1118);
-  border: 1px solid #303946;
-  border-radius: 22px;
-  padding: 22px;
-  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  padding: 23px;
+  border-radius: 25px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 217, 255, .14),
+      rgba(124, 77, 255, .12)
+    ),
+    var(--card);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 15px 45px rgba(0, 0, 0, .3),
+    inset 0 1px 0 rgba(255,255,255,.05);
 }
 
-.balance small {
-  color: #9ca5b3;
+.balance::after {
+  content: "🪙";
+  position: absolute;
+  left: 18px;
+  top: 14px;
+  font-size: 48px;
+  opacity: .09;
+}
+
+.balance-title {
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .points {
-  font-size: 36px;
-  font-weight: bold;
-  margin-top: 8px;
-  color: #f5b400;
-}
-
-.welcome {
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 15px;
+  margin-top: 6px;
+  font-size: 39px;
+  font-weight: 1000;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255, 212, 59, .3);
 }
 
 .section-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 25px 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 27px 3px 13px;
+  font-size: 21px;
+  font-weight: 900;
 }
 
+.section-title small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: normal;
+}
+
+/* البطاقات */
 .cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -77,73 +204,181 @@ body {
 }
 
 .card {
-  background: #121720;
-  border: 1px solid #28313d;
-  border-radius: 18px;
-  padding: 18px;
+  position: relative;
+  overflow: hidden;
+  padding: 18px 13px;
   text-align: center;
+  border-radius: 21px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(15px);
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, .25),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  transition: .2s ease;
 }
 
-.card .uc {
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 217, 255, .5);
+  box-shadow:
+    0 15px 40px rgba(0, 217, 255, .1);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  background: var(--blue);
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: .08;
+  top: -40px;
+  right: -35px;
+}
+
+.uc-icon {
+  font-size: 30px;
+  margin-bottom: 6px;
+}
+
+.uc {
   font-size: 23px;
-  font-weight: bold;
-  margin-bottom: 8px;
+  font-weight: 1000;
 }
 
 .price {
-  color: #f5b400;
-  font-weight: bold;
-  margin-bottom: 12px;
+  margin: 8px 0 14px;
+  color: var(--gold);
+  font-size: 14px;
+  font-weight: 900;
 }
 
+/* الأزرار */
 button {
-  width: 100%;
   border: 0;
-  border-radius: 12px;
-  padding: 12px;
-  font-weight: bold;
+  outline: none;
   cursor: pointer;
-  background: #f5b400;
-  color: #111;
+  transition: .18s ease;
 }
 
+.buy {
+  width: 100%;
+  padding: 12px 8px;
+  border-radius: 13px;
+  color: #041017;
+  background: linear-gradient(
+    135deg,
+    var(--blue),
+    #72efff
+  );
+  font-weight: 1000;
+  box-shadow:
+    0 7px 20px rgba(0, 217, 255, .18);
+}
+
+.buy:active {
+  transform: scale(.96);
+}
+
+/* الدعوات */
 .invite {
-  background: #121720;
-  border: 1px solid #28313d;
-  border-radius: 18px;
-  padding: 18px;
-  margin-top: 20px;
+  margin-top: 17px;
+  padding: 20px;
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(124, 77, 255, .15),
+      rgba(0, 217, 255, .08)
+    ),
+    var(--card);
+  border: 1px solid rgba(124, 77, 255, .3);
+}
+
+.invite h3 {
+  font-size: 19px;
+  margin-bottom: 8px;
 }
 
 .invite p {
-  color: #aeb7c4;
-  margin: 8px 0 14px;
-  line-height: 1.6;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 13px;
+  margin-bottom: 15px;
 }
 
+.invite-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 14px;
+  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--purple),
+    #9c7cff
+  );
+  font-weight: 900;
+  box-shadow:
+    0 8px 25px rgba(124, 77, 255, .2);
+}
+
+/* الشريط السفلي */
 .nav {
   position: sticky;
   bottom: 10px;
-  margin-top: 25px;
+  z-index: 10;
+
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 7px;
-  background: #11161e;
+  gap: 5px;
+
+  margin-top: 24px;
   padding: 8px;
-  border-radius: 18px;
-  border: 1px solid #29323e;
+
+  border-radius: 20px;
+
+  background: rgba(8, 12, 22, .88);
+  border: 1px solid rgba(255,255,255,.07);
+
+  backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.45);
 }
 
 .nav button {
+  padding: 10px 4px;
+  border-radius: 13px;
   background: transparent;
-  color: #c7ced8;
-  padding: 10px 5px;
-  font-size: 12px;
+  color: #8994aa;
+  font-size: 11px;
 }
 
-.nav button:hover {
-  background: #202833;
-  color: white;
+.nav button:first-child {
+  color: var(--blue);
+  background: rgba(0,217,255,.08);
+}
+
+.nav button:active {
+  transform: scale(.94);
+}
+
+/* الهاتف الصغير */
+@media (max-width: 360px) {
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .logo {
+    font-size: 32px;
+  }
+
+  .points {
+    font-size: 34px;
+  }
 }
 </style>
 </head>
@@ -153,7 +388,13 @@ button {
 <div class="app">
 
   <div class="logo">
-    <span>UC</span> HUB
+    <span class="uc">UC</span>
+    <span class="hub"> HUB</span>
+  </div>
+
+  <div class="status">
+    <span></span>
+    UC HUB Online
   </div>
 
   <div class="welcome" id="welcome">
@@ -161,62 +402,152 @@ button {
   </div>
 
   <div class="balance">
-    <small>رصيد النقاط</small>
-    <div class="points" id="points">0 🪙</div>
+
+    <div class="balance-title">
+      رصيد النقاط
+    </div>
+
+    <div class="points" id="points">
+      0 🪙
+    </div>
+
   </div>
 
   <div class="section-title">
-    🎮 متجر UC
+    <span>🎮 متجر UC</span>
+    <small>اختر الباقة</small>
   </div>
 
   <div class="cards">
 
     <div class="card">
-      <div class="uc">60 UC</div>
-      <div class="price">500 نقطة</div>
-      <button onclick="buyUC(60, 500)">استبدال</button>
+
+      <div class="uc-icon">💎</div>
+
+      <div class="uc">
+        60 UC
+      </div>
+
+      <div class="price">
+        30 نقطة
+      </div>
+
+      <button
+        class="buy"
+        onclick="buyUC(60, 30)"
+      >
+        استبدال
+      </button>
+
     </div>
 
     <div class="card">
-      <div class="uc">325 UC</div>
-      <div class="price">2500 نقطة</div>
-      <button onclick="buyUC(325, 2500)">استبدال</button>
+
+      <div class="uc-icon">💎</div>
+
+      <div class="uc">
+        325 UC
+      </div>
+
+      <div class="price">
+        70 نقطة
+      </div>
+
+      <button
+        class="buy"
+        onclick="buyUC(325, 70)"
+      >
+        استبدال
+      </button>
+
     </div>
 
     <div class="card">
-      <div class="uc">660 UC</div>
-      <div class="price">5000 نقطة</div>
-      <button onclick="buyUC(660, 5000)">استبدال</button>
+
+      <div class="uc-icon">💎</div>
+
+      <div class="uc">
+        660 UC
+      </div>
+
+      <div class="price">
+        100 نقطة
+      </div>
+
+      <button
+        class="buy"
+        onclick="buyUC(660, 100)"
+      >
+        استبدال
+      </button>
+
     </div>
 
     <div class="card">
-      <div class="uc">1800 UC</div>
-      <div class="price">12000 نقطة</div>
-      <button onclick="buyUC(1800, 12000)">استبدال</button>
+
+      <div class="uc-icon">💎</div>
+
+      <div class="uc">
+        1800 UC
+      </div>
+
+      <div class="price">
+        220 نقطة
+      </div>
+
+      <button
+        class="buy"
+        onclick="buyUC(1800, 220)"
+      >
+        استبدال
+      </button>
+
     </div>
 
   </div>
 
   <div class="invite">
 
-    <h3>🔗 ادعُ أصدقاءك</h3>
+    <h3>
+      🔗 ادعُ أصدقاءك
+    </h3>
 
     <p>
       شارك رابط الدعوة الخاص بك واجمع النقاط.
-      كل إحالة ناجحة تمنحك نقطة واحدة.
+      كل إحالة ناجحة تمنحك نقطة واحدة 🪙
     </p>
 
-    <button onclick="invite()">
-      مشاركة رابط الدعوة
+    <button
+      class="invite-btn"
+      onclick="invite()"
+    >
+      🚀 مشاركة رابط الدعوة
     </button>
 
   </div>
 
   <div class="nav">
-    <button>🏠 الرئيسية</button>
-    <button>🪙 النقاط</button>
-    <button>🔗 الدعوات</button>
-    <button>📦 طلباتي</button>
+
+    <button>
+      🏠<br>
+      الرئيسية
+    </button>
+
+    <button>
+      🪙<br>
+      النقاط
+    </button>
+
+    <button>
+      🔗<br>
+      الدعوات
+    </button>
+
+    <button>
+      📦<br>
+      طلباتي
+    </button>
+
   </div>
 
 </div>
@@ -250,7 +581,9 @@ async function loadUser() {
   }
 
   document.getElementById("welcome").textContent =
-    "أهلاً " + (user.first_name || "بك") + " 👋";
+    "أهلاً " +
+    (user.first_name || "بك") +
+    " 👋";
 
   try {
 
@@ -261,16 +594,22 @@ async function loadUser() {
       return;
     }
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
-    points = Number(data.points || 0);
+    points =
+      Number(data.points || 0);
 
-    document.getElementById("points").textContent =
+    document.getElementById("points")
+      .textContent =
       points + " 🪙";
 
   } catch (error) {
 
-    console.log("User loading error:", error);
+    console.log(
+      "User loading error:",
+      error
+    );
 
   }
 }
@@ -280,31 +619,38 @@ function buyUC(uc, cost) {
   if (points < cost) {
 
     alert(
-      "رصيدك غير كافٍ حالياً.\n\n" +
-      "تحتاج: " + cost + " نقطة"
+      "رصيدك غير كافٍ حالياً 😔\n\n" +
+      "تحتاج إلى " +
+      cost +
+      " نقطة."
     );
 
     return;
   }
 
-  const playerID = prompt(
-    "أدخل Player ID الخاص بك:"
-  );
+  const playerID =
+    prompt(
+      "🎮 أدخل Player ID الخاص بك:"
+    );
 
   if (!playerID) {
     return;
   }
 
   alert(
-    "سيتم تجهيز طلبك 🎉\n\n" +
-    "الباقة: " + uc + " UC\n" +
-    "Player ID: " + playerID
+    "🎉 تم تجهيز طلبك!\n\n" +
+    "💎 الباقة: " +
+    uc +
+    " UC\n" +
+    "🆔 Player ID: " +
+    playerID
   );
 }
 
 function invite() {
 
-  const user = getTelegramUser();
+  const user =
+    getTelegramUser();
 
   if (!user || !user.id) {
 
@@ -319,28 +665,36 @@ function invite() {
     "https://t.me/fre_eucbot?start=ref_" +
     user.id;
 
-  if (tg && tg.openTelegramLink) {
+  const shareUrl =
+    "https://t.me/share/url?url=" +
+    encodeURIComponent(link) +
+    "&text=" +
+    encodeURIComponent(
+      "🎮 انضم إلى UC HUB واجمع نقاطك 🪙🔥"
+    );
+
+  if (
+    tg &&
+    tg.openTelegramLink
+  ) {
 
     tg.openTelegramLink(
-      "https://t.me/share/url?url=" +
-      encodeURIComponent(link) +
-      "&text=" +
-      encodeURIComponent(
-        "انضم إلى UC HUB واجمع نقاطك 🎮🪙"
-      )
+      shareUrl
     );
 
     return;
   }
 
-  if (navigator.share) {
+  if (
+    navigator.share
+  ) {
 
     navigator.share({
 
       title: "UC HUB",
 
       text:
-        "انضم إلى UC HUB واجمع نقاطك 🎮🪙",
+        "🎮 انضم إلى UC HUB واجمع نقاطك 🪙🔥",
 
       url: link
 
@@ -349,7 +703,7 @@ function invite() {
   } else {
 
     prompt(
-      "انسخ رابط الدعوة:",
+      "🔗 انسخ رابط الدعوة:",
       link
     );
 
@@ -361,4 +715,4 @@ loadUser();
 </script>
 
 </body>
-</html>
+        </html>
