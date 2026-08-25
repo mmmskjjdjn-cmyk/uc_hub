@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UC HUB</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #080b10;
+      color: white;
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin: 15px 0 25px;
+    }
+
+    .logo span {
+      color: #f5b400;
+    }
+
+    .balance {
+      background: linear-gradient(135deg, #171d27, #0d1118);
+      border: 1px solid #303946;
+      border-radius: 22px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .balance small {
+      color: #9ca5b3;
+    }
+
+    .points {
+      font-size: 36px;
+      font-weight: bold;
+      margin-top: 8px;
+      color: #f5b400;
+    }
+
+    .welcome {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 25px 0 12px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      background: #121720;
+      border: 1px solid #28313d;
+      border-radius: 18px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .card .uc {
+      font-size: 23px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .price {
+      color: #f5b400;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #f5b400;
+      color: #111;
+    }
+
+    .invite {
+      background: #121720;
+      border: 1px solid #28313d;
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 20px;
+    }
+
+    .invite p {
+      color: #aeb7c4;
+      margin: 8px 0 14px;
+      line-height: 1.6;
+    }
+
+    .nav {
+      position: sticky;
+      bottom: 10px;
+      margin-top: 25px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      background: #11161e;
+      padding: 8px;
+      border-radius: 18px;
+      border: 1px solid #29323e;
+    }
+
+    .nav button {
+      background: transparent;
+      color: #c7ced8;
+      padding: 10px 5px;
+      font-size: 12px;
+    }
+
+    .nav button:hover {
+      background: #202833;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <div class="logo">
+      <span>UC</span> HUB
+    </div>
+
+    <div class="welcome">
+      أهلاً بك 👋
+    </div>
+
+    <div class="balance">
+      <small>رصيد النقاط</small>
+      <div class="points" id="points">0 🪙</div>
+    </div>
+
+    <div class="section-title">
+      🎮 متجر UC
+    </div>
+
+    <div class="cards">
+
+      <div class="card">
+        <div class="uc">60 UC</div>
+        <div class="price">500 نقطة</div>
+        <button onclick="buyUC(60, 500)">استبدال</button>
+      </div>
+
+      <div class="card">
+        <div class="uc">325 UC</div>
+        <div class="price">2500 نقطة</div>
+        <button onclick="buyUC(325, 2500)">استبدال</button>
+      </div>
+
+      <div class="card">
+        <div class="uc">660 UC</div>
+        <div class="price">5000 نقطة</div>
+        <button onclick="buyUC(660, 5000)">استبدال</button>
+      </div>
+
+      <div class="card">
+        <div class="uc">1800 UC</div>
+        <div class="price">12000 نقطة</div>
+        <button onclick="buyUC(1800, 12000)">استبدال</button>
+      </div>
+
+    </div>
+
+    <div class="invite">
+      <h3>🔗 ادعُ أصدقاءك</h3>
+      <p>
+        شارك رابط الدعوة الخاص بك واجمع النقاط.
+        كل إحالة ناجحة تمنحك نقطة واحدة.
+      </p>
+      <button onclick="invite()">
+        مشاركة رابط الدعوة
+      </button>
+    </div>
+
+    <div class="nav">
+      <button>🏠 الرئيسية</button>
+      <button>🪙 النقاط</button>
+      <button>🔗 الدعوات</button>
+      <button>📦 طلباتي</button>
+    </div>
+
+  </div>
+
+  <script>
+
+    let points = 0;
+
+    function buyUC(uc, cost) {
+
+      if (points < cost) {
+        alert(
+          "رصيدك غير كافٍ حالياً.\n\n" +
+          "تحتاج: " + cost + " نقطة"
+        );
+        return;
+      }
+
+      const playerID = prompt(
+        "أدخل Player ID الخاص بك:"
+      );
+
+      if (!playerID) return;
+
+      alert(
+        "تم إرسال طلبك بنجاح 🎉\n\n" +
+        "الباقة: " + uc + " UC\n" +
+        "Player ID: " + playerID
+      );
+    }
+
+    function invite() {
+
+      const link =
+        "https://t.me/YOUR_BOT_USERNAME?start=ref123";
+
+      if (navigator.share) {
+
+        navigator.share({
+          title: "UC HUB",
+          text: "انضم إلى UC HUB واجمع نقاطك 🎮🪙",
+          url: link
+        });
+
+      } else {
+
+        prompt(
+          "انسخ رابط الدعوة:",
+          link
+        );
+
+      }
+    }
+
+  </script>
+
+</body>
+  </html>
