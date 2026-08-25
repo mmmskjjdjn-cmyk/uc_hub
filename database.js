@@ -8,17 +8,29 @@ function loadData() {
     return {
       users: {},
       referrals: {},
-      orders: []
+      orders: [],
+      payments: []
     };
   }
 
   try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+    const data = JSON.parse(
+      fs.readFileSync(DATA_FILE, "utf8")
+    );
+
+    if (!data.users) data.users = {};
+    if (!data.referrals) data.referrals = {};
+    if (!data.orders) data.orders = [];
+    if (!data.payments) data.payments = [];
+
+    return data;
+
   } catch {
     return {
       users: {},
       referrals: {},
-      orders: []
+      orders: [],
+      payments: []
     };
   }
 }
@@ -43,6 +55,11 @@ function getUser(userId, firstName = "User") {
       createdAt: new Date().toISOString()
     };
 
+    saveData(data);
+
+  } else if (firstName && data.users[id].firstName === "User") {
+
+    data.users[id].firstName = firstName;
     saveData(data);
   }
 
@@ -93,15 +110,78 @@ function addReferral(newUserId, referrerId) {
 
 function getPoints(userId) {
   const data = loadData();
-  const user = data.users[String(userId)];
+
+  const user =
+    data.users[String(userId)];
 
   return user ? user.points : 0;
 }
 
-function createOrder(userId, uc, cost, playerId) {
+function addStarsPurchase(
+  userId,
+  stars,
+  points,
+  chargeId
+) {
   const data = loadData();
 
-  const user = data.users[String(userId)];
+  const id = String(userId);
+
+  if (!data.users[id]) {
+    data.users[id] = {
+      id,
+      firstName: "User",
+      points: 0,
+      referrals: 0,
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  // منع إضافة نفس عملية الدفع مرتين
+  const alreadyPaid =
+    data.payments.some(
+      payment =>
+        payment.chargeId === chargeId
+    );
+
+  if (alreadyPaid) {
+    return {
+      success: false,
+      duplicate: true,
+      message: "عملية الدفع مسجلة مسبقاً"
+    };
+  }
+
+  data.users[id].points += Number(points);
+
+  data.payments.push({
+    id: Date.now().toString(),
+    userId: id,
+    stars: Number(stars),
+    points: Number(points),
+    chargeId,
+    createdAt: new Date().toISOString()
+  });
+
+  saveData(data);
+
+  return {
+    success: true,
+    pointsAdded: Number(points),
+    newBalance: data.users[id].points
+  };
+}
+
+function createOrder(
+  userId,
+  uc,
+  cost,
+  playerId
+) {
+  const data = loadData();
+
+  const user =
+    data.users[String(userId)];
 
   if (!user || user.points < cost) {
     return {
@@ -138,5 +218,6 @@ module.exports = {
   getUser,
   addReferral,
   getPoints,
+  addStarsPurchase,
   createOrder
 };
