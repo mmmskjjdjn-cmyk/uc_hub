@@ -243,24 +243,26 @@
     }
 
     function invite() {
+  const tg = window.Telegram?.WebApp;
+  const userId = tg?.initDataUnsafe?.user?.id;
 
-      const link =
-        "https://t.me/fre_eucbot?start=ref123";
+  if (!userId) {
+    alert("افتح UC HUB من داخل Telegram أولاً 🔥");
+    return;
+  }
 
-      if (navigator.share) {
+  const link = "https://t.me/fre_eucbot?start=ref_" + userId;
 
-        navigator.share({
-          title: "UC HUB",
-          text: "انضم إلى UC HUB واجمع نقاطك 🎮🪙",
-          url: link
-        });
-
-      } else {
-
-        prompt(
-          "انسخ رابط الدعوة:",
-          link
-        );
+  if (navigator.share) {
+    navigator.share({
+      title: "UC HUB",
+      text: "انضم إلى UC HUB واجمع نقاطك 🎮🪙",
+      url: link
+    });
+  } else {
+    prompt("انسخ رابط الدعوة:", link);
+  }
+    }
 
       }
     }
