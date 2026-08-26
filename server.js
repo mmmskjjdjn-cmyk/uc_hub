@@ -19,6 +19,7 @@ const WEBHOOK_SECRET =
   process.env.WEBHOOK_SECRET || "uc_hub_secret";
 
 const OWNER_ID = "6692410534";
+const CHANNEL = "@FREEUC_60";
 
 app.use(express.json());
 app.use(express.static(__dirname));
@@ -29,12 +30,81 @@ app.use(express.static(__dirname));
 ========================= */
 
 app.get("/", (req, res) => {
-
   res.sendFile(
     path.join(__dirname, "index.html")
   );
-
 });
+
+
+/* =========================
+   🔐 CHECK CHANNEL
+========================= */
+
+async function isSubscribed(userId) {
+
+  try {
+
+    const member =
+      await bot.telegram.getChatMember(
+        CHANNEL,
+        userId
+      );
+
+    return [
+      "creator",
+      "administrator",
+      "member"
+    ].includes(member.status);
+
+  } catch (error) {
+
+    console.error(
+      "Channel check error:",
+      error.message
+    );
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================
+   📢 JOIN MESSAGE
+========================= */
+
+async function requireSubscription(ctx) {
+
+  await ctx.reply(
+
+    "🔒 يجب الاشتراك في قناة UC HUB أولاً\n\n" +
+
+    "📢 اشترك في القناة حتى تتمكن من استخدام البوت.\n\n" +
+
+    "بعد الاشتراك اضغط على «✅ تحقق من الاشتراك».",
+
+    Markup.inlineKeyboard([
+
+      [
+        Markup.button.url(
+          "📢 الاشتراك في القناة",
+          "https://t.me/FREEUC_60"
+        )
+      ],
+
+      [
+        Markup.button.callback(
+          "✅ تحقق من الاشتراك",
+          "CHECK_SUB"
+        )
+      ]
+
+    ])
+
+  );
+
+}
 
 
 /* =========================
@@ -100,6 +170,22 @@ bot.start(async (ctx) => {
   const user = ctx.from;
   const userId = String(user.id);
 
+  /* 👑 المالك يتجاوز الاشتراك */
+
+  if (userId !== OWNER_ID) {
+
+    const subscribed =
+      await isSubscribed(user.id);
+
+    if (!subscribed) {
+
+      return requireSubscription(ctx);
+
+    }
+
+  }
+
+
   const data = loadData();
 
   const isNewUser =
@@ -110,10 +196,11 @@ bot.start(async (ctx) => {
     user.first_name || "User"
   );
 
-  const payload =
-    ctx.message.text.split(" ")[1];
 
   /* 🔗 Referral */
+
+  const payload =
+    ctx.message.text.split(" ")[1];
 
   if (
     payload &&
@@ -193,7 +280,7 @@ bot.start(async (ctx) => {
   }
 
 
-  /* 👑 رسالة المالك */
+  /* 👑 المالك */
 
   if (userId === OWNER_ID) {
 
@@ -223,7 +310,88 @@ bot.start(async (ctx) => {
 
 
 /* =========================
-   📊 STATS FUNCTION
+   ✅ CHECK SUB BUTTON
+========================= */
+
+bot.action(
+  "CHECK_SUB",
+  async (ctx) => {
+
+    try {
+
+      const userId =
+        ctx.from.id;
+
+      const subscribed =
+        await isSubscribed(
+          userId
+        );
+
+      if (!subscribed) {
+
+        await ctx.answerCbQuery(
+          "❌ لم يتم العثور على اشتراكك.",
+          {
+            show_alert: true
+          }
+        );
+
+        return;
+
+      }
+
+
+      await ctx.answerCbQuery(
+        "✅ تم التحقق من اشتراكك!"
+      );
+
+
+      const user =
+        getUser(
+          userId,
+          ctx.from.first_name ||
+          "User"
+        );
+
+
+      await ctx.reply(
+
+        "🎉 تم التحقق بنجاح!\n\n" +
+
+        "✅ أنت مشترك في القناة.\n" +
+
+        "🪙 رصيدك الحالي: " +
+        user.points +
+        " نقطة\n\n" +
+
+        "🚀 الآن يمكنك الدخول إلى UC HUB.",
+
+        normalKeyboard()
+
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Subscription button error:",
+        error
+      );
+
+      await ctx.answerCbQuery(
+        "❌ حدث خطأ أثناء التحقق.",
+        {
+          show_alert: true
+        }
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================
+   📊 STATS
 ========================= */
 
 async function sendStats(ctx) {
@@ -238,6 +406,7 @@ async function sendStats(ctx) {
 
   }
 
+
   const data =
     loadData();
 
@@ -251,6 +420,27 @@ async function sendStats(ctx) {
 
   const referrals =
     data.referrals || {};
+
+  let subscribedCount = 0;
+
+  for (const user of users) {
+
+    try {
+
+      if (
+        await isSubscribed(
+          Number(user.id)
+        )
+      ) {
+
+        subscribedCount++;
+
+      }
+
+    } catch {}
+
+  }
+
 
   const totalUsers =
     users.length;
@@ -297,27 +487,38 @@ async function sendStats(ctx) {
 
     "📊🔥 إحصائيات UC HUB\n\n" +
 
-    "👥 عدد المستخدمين:\n" +
+    "👥 إجمالي المستخدمين: " +
     totalUsers +
     "\n\n" +
 
-    "🪙 مجموع النقاط:\n" +
+    "📢 المشتركين بالقناة: " +
+    subscribedCount +
+    "\n\n" +
+
+    "❌ غير المشتركين: " +
+    (
+      totalUsers -
+      subscribedCount
+    ) +
+    "\n\n" +
+
+    "🪙 مجموع النقاط: " +
     totalPoints +
     "\n\n" +
 
-    "🔗 إجمالي الإحالات:\n" +
+    "🔗 إجمالي الإحالات: " +
     totalReferrals +
     "\n\n" +
 
-    "📦 إجمالي الطلبات:\n" +
+    "📦 إجمالي الطلبات: " +
     totalOrders +
     "\n\n" +
 
-    "⏳ قيد المعالجة:\n" +
+    "⏳ قيد المعالجة: " +
     pendingOrders +
     "\n\n" +
 
-    "✅ الطلبات المكتملة:\n" +
+    "✅ المكتملة: " +
     completedOrders +
     "\n\n" +
 
@@ -329,10 +530,6 @@ async function sendStats(ctx) {
 
 }
 
-
-/* =========================
-   📊 STATS BUTTON
-========================= */
 
 bot.action(
   "BOT_STATS",
@@ -360,7 +557,7 @@ bot.action(
 
 
 /* =========================
-   🪙 ADD 1000 BUTTON
+   🪙 ADD 1000
 ========================= */
 
 bot.action(
@@ -377,13 +574,8 @@ bot.action(
 
     }
 
+
     try {
-
-      const data =
-        loadData();
-
-      const id =
-        String(ctx.from.id);
 
       getUser(
         ctx.from.id,
@@ -391,25 +583,30 @@ bot.action(
         "Owner"
       );
 
-      const updated =
+      const data =
         loadData();
 
-      updated.users[id].points += 1000;
+      const id =
+        String(ctx.from.id);
 
-      saveData(updated);
+      data.users[id].points += 1000;
+
+      saveData(data);
+
 
       await ctx.answerCbQuery(
         "🪙 تمت إضافة 1000 نقطة!"
       );
 
+
       await ctx.reply(
 
         "👑 تم إضافة 1000 نقطة بنجاح!\n\n" +
 
-        "🪙 النقاط المضافة: +1000\n" +
+        "🪙 النقاط المضافة: +1000\n\n" +
 
         "💰 رصيدك الآن: " +
-        updated.users[id].points +
+        data.users[id].points +
         " نقطة"
 
       );
@@ -417,7 +614,7 @@ bot.action(
     } catch (error) {
 
       console.error(
-        "Add points button error:",
+        "Add points error:",
         error
       );
 
@@ -432,7 +629,7 @@ bot.action(
 
 
 /* =========================
-   /stats
+   📊 /stats
 ========================= */
 
 bot.command(
@@ -460,9 +657,6 @@ bot.command(
     const orders =
       data.orders || [];
 
-    const referrals =
-      data.referrals || {};
-
     const totalUsers =
       users.length;
 
@@ -476,29 +670,6 @@ bot.command(
         0
       );
 
-    const totalReferrals =
-      Object.keys(
-        referrals
-      ).length;
-
-    const totalOrders =
-      orders.length;
-
-    const pendingOrders =
-      orders.filter(
-        o =>
-          o.status ===
-          "pending"
-      ).length;
-
-    const completedOrders =
-      orders.filter(
-        o =>
-          o.status ===
-          "completed"
-      ).length;
-
-
     await ctx.reply(
 
       "📊🔥 إحصائيات UC HUB\n\n" +
@@ -511,20 +682,8 @@ bot.command(
       totalPoints +
       "\n\n" +
 
-      "🔗 الإحالات: " +
-      totalReferrals +
-      "\n\n" +
-
       "📦 الطلبات: " +
-      totalOrders +
-      "\n\n" +
-
-      "⏳ قيد المعالجة: " +
-      pendingOrders +
-      "\n\n" +
-
-      "✅ المكتملة: " +
-      completedOrders
+      orders.length
 
     );
 
@@ -597,6 +756,7 @@ app.post(
 
     }
 
+
     const result =
       createOrder(
 
@@ -609,6 +769,7 @@ app.post(
         String(playerId)
 
       );
+
 
     res.json(result);
 
