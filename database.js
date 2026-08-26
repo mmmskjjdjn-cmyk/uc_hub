@@ -86,7 +86,7 @@ function addReferral(newUserId, referrerId) {
 
   data.referrals[newId] = refId;
 
-  data.users[refId].points += 1;
+  data.users[refId].points += 3;
   data.users[refId].referrals += 1;
 
   saveData(data);
