@@ -7,76 +7,110 @@ const {
   addReferral,
   createOrder,
   loadData,
-  saveData
+  claimDailyReward,
+  getOrders
 } = require("./database");
 
 const app = express();
-const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const PORT = process.env.PORT || 3000;
-const WEB_APP_URL = "https://uc-hubuc-hub.onrender.com";
+const bot =
+  new Telegraf(process.env.BOT_TOKEN);
+
+const PORT =
+  process.env.PORT || 3000;
+
+const WEB_APP_URL =
+  "https://uc-hubuc-hub.onrender.com";
+
 const WEBHOOK_SECRET =
-  process.env.WEBHOOK_SECRET || "uc_hub_secret";
+  process.env.WEBHOOK_SECRET ||
+  "uc_hub_secret";
 
-const OWNER_ID = "6692410534";
-const CHANNEL = "@FREEUC_60";
+const OWNER_ID =
+  "6692410534";
+
+const CHANNEL =
+  "@FREEUC_60";
 
 app.use(express.json());
-app.use(express.static(__dirname));
+
+app.use(
+  express.static(__dirname)
+);
+
 
 /* =========================
    🌐 WEBSITE
 ========================= */
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+
+  res.sendFile(
+    path.join(
+      __dirname,
+      "index.html"
+    )
+  );
+
 });
 
+
 /* =========================
-   🔐 CHECK CHANNEL
+   🔐 CHANNEL CHECK
 ========================= */
 
 async function isSubscribed(userId) {
+
   try {
-    const member = await bot.telegram.getChatMember(
-      CHANNEL,
-      userId
-    );
+
+    const member =
+      await bot.telegram.getChatMember(
+        CHANNEL,
+        userId
+      );
 
     return [
       "creator",
       "administrator",
       "member"
-    ].includes(member.status);
+    ].includes(
+      member.status
+    );
 
   } catch (error) {
+
     console.error(
       "Channel check error:",
       error.message
     );
 
     return false;
+
   }
+
 }
 
+
 /* =========================
-   📢 JOIN MESSAGE
+   📢 SUBSCRIPTION MESSAGE
 ========================= */
 
 async function requireSubscription(ctx) {
 
   await ctx.reply(
 
-    "🔒 الاشتراك مطلوب لاستخدام UC HUB\n\n" +
-    "📢 اشترك في قناة UC HUB أولاً.\n\n" +
-    "بعد الاشتراك اضغط على:\n" +
-    "✅ تحقق من الاشتراك",
+    "🔒 الاشتراك مطلوب\n\n" +
+
+    "حتى تستخدم UC HUB لازم تشترك " +
+    "في قناة البوت أولاً.\n\n" +
+
+    "📢 اشترك ثم اضغط زر التحقق 👇",
 
     Markup.inlineKeyboard([
 
       [
         Markup.button.url(
-          "📢 الاشتراك في القناة",
+          "📢 اشترك بالقناة",
           "https://t.me/FREEUC_60"
         )
       ],
@@ -91,7 +125,9 @@ async function requireSubscription(ctx) {
     ])
 
   );
+
 }
+
 
 /* =========================
    👑 OWNER KEYBOARD
@@ -123,7 +159,9 @@ function ownerKeyboard() {
     ]
 
   ]);
+
 }
+
 
 /* =========================
    👤 NORMAL KEYBOARD
@@ -141,7 +179,9 @@ function normalKeyboard() {
     ]
 
   ]);
+
 }
+
 
 /* =========================
    🤖 START
@@ -151,54 +191,67 @@ bot.start(async (ctx) => {
 
   try {
 
-    const user = ctx.from;
-    const userId = String(user.id);
+    const user =
+      ctx.from;
+
+    const userId =
+      String(user.id);
+
 
     /*
       المالك يدخل مباشرة
-      أما المستخدم العادي يجب أن يكون مشتركًا
     */
 
-    if (userId !== OWNER_ID) {
+    if (
+      userId !== OWNER_ID
+    ) {
 
       const subscribed =
-        await isSubscribed(user.id);
+        await isSubscribed(
+          user.id
+        );
 
       if (!subscribed) {
 
-        return requireSubscription(ctx);
+        return requireSubscription(
+          ctx
+        );
 
       }
+
     }
 
-    /*
-      تحميل البيانات
-    */
-
-    const data = loadData();
 
     /*
-      معرفة هل المستخدم جديد
+      معرفة المستخدم قبل إنشائه
     */
+
+    const before =
+      await loadData();
 
     const isNewUser =
-      !data.users[userId];
+      !before.users[userId];
+
 
     /*
       إنشاء المستخدم
     */
 
-    getUser(
+    await getUser(
       user.id,
-      user.first_name || "User"
+      user.first_name ||
+      "User"
     );
+
 
     /*
       Referral
     */
 
     const payload =
-      ctx.message.text.split(" ")[1];
+      ctx.message.text
+        .split(" ")[1];
+
 
     if (
       payload &&
@@ -206,17 +259,21 @@ bot.start(async (ctx) => {
     ) {
 
       const referrerId =
-        payload.replace("ref_", "");
+        payload.replace(
+          "ref_",
+          ""
+        );
 
-      addReferral(
+      await addReferral(
         user.id,
         referrerId
       );
+
     }
+
 
     /*
       إشعار المالك
-      فقط عند دخول مستخدم جديد
     */
 
     if (
@@ -224,12 +281,12 @@ bot.start(async (ctx) => {
       userId !== OWNER_ID
     ) {
 
-      const updatedData =
-        loadData();
+      const updated =
+        await loadData();
 
       const totalUsers =
         Object.keys(
-          updatedData.users || {}
+          updated.users || {}
         ).length;
 
       const username =
@@ -237,8 +294,6 @@ bot.start(async (ctx) => {
           ? "@" + user.username
           : "لا يوجد";
 
-      const time =
-        new Date().toLocaleString("ar");
 
       try {
 
@@ -263,36 +318,38 @@ bot.start(async (ctx) => {
           username +
           "\n\n" +
 
-          "🕐 وقت الدخول: " +
-          time +
-          "\n\n" +
-
-          "👥 إجمالي مستخدمي البوت: " +
+          "👥 إجمالي المستخدمين: " +
           totalUsers +
           "\n\n" +
 
-          "🔥 UC HUB"
+          "🎮 UC HUB"
 
         );
 
       } catch (error) {
 
         console.error(
-          "Owner notification error:",
+          "Owner notification:",
           error
         );
+
       }
+
     }
+
 
     /*
       رسالة المالك
     */
 
-    if (userId === OWNER_ID) {
+    if (
+      userId === OWNER_ID
+    ) {
 
       await ctx.reply(
 
         "👑 أهلاً بك يا مالك UC HUB!\n\n" +
+
         "🎮 لوحة التحكم جاهزة.",
 
         ownerKeyboard()
@@ -304,30 +361,35 @@ bot.start(async (ctx) => {
       await ctx.reply(
 
         "🎉 أهلاً بك في UC HUB!\n\n" +
+
         "🪙 اجمع النقاط واستبدلها بالمكافآت.\n\n" +
-        "🔥 استمتع!",
+
+        "🔥 بالتوفيق!",
 
         normalKeyboard()
 
       );
+
     }
 
   } catch (error) {
 
     console.error(
-      "Start error:",
+      "START ERROR:",
       error
     );
 
     await ctx.reply(
       "❌ حدث خطأ، حاول مرة ثانية."
     );
+
   }
 
 });
 
+
 /* =========================
-   ✅ CHECK SUBSCRIPTION
+   ✅ CHECK SUB
 ========================= */
 
 bot.action(
@@ -336,46 +398,45 @@ bot.action(
 
     try {
 
-      const userId =
-        ctx.from.id;
-
       const subscribed =
         await isSubscribed(
-          userId
+          ctx.from.id
         );
 
       if (!subscribed) {
 
         return ctx.answerCbQuery(
-          "❌ لم يتم العثور على اشتراكك بالقناة.",
+
+          "❌ لسه ما اشتركت بالقناة.",
+
           {
             show_alert: true
           }
+
         );
+
       }
 
+
       await ctx.answerCbQuery(
-        "✅ تم التحقق بنجاح!"
+        "✅ تم التحقق!"
       );
 
-      const user =
-        getUser(
-          userId,
-          ctx.from.first_name ||
-          "User"
-        );
+
+      await getUser(
+        ctx.from.id,
+        ctx.from.first_name ||
+        "User"
+      );
+
 
       await ctx.reply(
 
         "🎉 تم التحقق بنجاح!\n\n" +
 
-        "✅ أنت مشترك في القناة.\n\n" +
+        "✅ اشتراكك مؤكد.\n" +
 
-        "🪙 رصيدك: " +
-        user.points +
-        " نقطة\n\n" +
-
-        "🚀 الآن يمكنك الدخول إلى UC HUB.",
+        "🚀 يمكنك الآن استخدام UC HUB.",
 
         normalKeyboard()
 
@@ -384,23 +445,28 @@ bot.action(
     } catch (error) {
 
       console.error(
-        "Check subscription error:",
+        "CHECK SUB ERROR:",
         error
       );
 
       await ctx.answerCbQuery(
+
         "❌ حدث خطأ أثناء التحقق.",
+
         {
           show_alert: true
         }
+
       );
+
     }
 
   }
 );
 
+
 /* =========================
-   📊 STATISTICS
+   📊 STATS
 ========================= */
 
 async function sendStats(ctx) {
@@ -410,12 +476,15 @@ async function sendStats(ctx) {
   ) {
 
     return ctx.answerCbQuery(
-      "❌ هذا الزر للمالك فقط."
+      "❌ للمالك فقط."
     );
+
   }
 
+
   const data =
-    loadData();
+    await loadData();
+
 
   const users =
     Object.values(
@@ -427,6 +496,7 @@ async function sendStats(ctx) {
 
   const referrals =
     data.referrals || {};
+
 
   const totalUsers =
     users.length;
@@ -463,30 +533,11 @@ async function sendStats(ctx) {
         "completed"
     ).length;
 
-  let subscribedCount = 0;
-
-  for (
-    const user of users
-  ) {
-
-    try {
-
-      if (
-        await isSubscribed(
-          Number(user.id)
-        )
-      ) {
-
-        subscribedCount++;
-
-      }
-
-    } catch {}
-  }
 
   await ctx.answerCbQuery(
     "📊 تم تحديث الإحصائيات"
   );
+
 
   await ctx.reply(
 
@@ -494,17 +545,6 @@ async function sendStats(ctx) {
 
     "👥 إجمالي المستخدمين: " +
     totalUsers +
-    "\n\n" +
-
-    "📢 المشتركون بالقناة: " +
-    subscribedCount +
-    "\n\n" +
-
-    "❌ غير المشتركين: " +
-    (
-      totalUsers -
-      subscribedCount
-    ) +
     "\n\n" +
 
     "🪙 مجموع النقاط: " +
@@ -530,7 +570,9 @@ async function sendStats(ctx) {
     "🔥 UC HUB"
 
   );
+
 }
+
 
 /* =========================
    📊 STATS BUTTON
@@ -547,17 +589,19 @@ bot.action(
     } catch (error) {
 
       console.error(
-        "Stats error:",
+        "STATS ERROR:",
         error
       );
 
       await ctx.answerCbQuery(
         "❌ حدث خطأ"
       );
+
     }
 
   }
 );
+
 
 /* =========================
    🪙 ADD 1000
@@ -574,38 +618,50 @@ bot.action(
       return ctx.answerCbQuery(
         "❌ للمالك فقط."
       );
+
     }
+
 
     try {
 
-      getUser(
-        ctx.from.id,
-        ctx.from.first_name ||
-        "Owner"
-      );
+      const user =
+        await getUser(
+          ctx.from.id,
+          ctx.from.first_name ||
+          "Owner"
+        );
+
 
       const data =
-        loadData();
+        await loadData();
 
-      const id =
-        String(ctx.from.id);
 
-      data.users[id].points += 1000;
+      data.users[
+        String(ctx.from.id)
+      ].points += 1000;
 
-      saveData(data);
+
+      await saveData(
+        data
+      );
+
 
       await ctx.answerCbQuery(
         "🪙 تمت إضافة 1000 نقطة!"
       );
 
+
       await ctx.reply(
 
-        "👑 تمت إضافة 1000 نقطة!\n\n" +
+        "👑 تمت إضافة 1000 نقطة بنجاح!\n\n" +
 
-        "🪙 المضافة: +1000\n\n" +
+        "🪙 +1000 نقطة\n\n" +
 
         "💰 رصيدك الآن: " +
-        data.users[id].points +
+        (
+          Number(user.points) +
+          1000
+        ) +
         " نقطة"
 
       );
@@ -613,17 +669,19 @@ bot.action(
     } catch (error) {
 
       console.error(
-        "Add points error:",
+        "ADD POINTS ERROR:",
         error
       );
 
       await ctx.answerCbQuery(
         "❌ حدث خطأ"
       );
+
     }
 
   }
 );
+
 
 /* =========================
    📊 /stats
@@ -638,20 +696,21 @@ bot.command(
     ) {
 
       return ctx.reply(
-        "❌ هذا الأمر مخصص للمالك."
+        "❌ هذا الأمر للمالك فقط."
       );
+
     }
 
+
     const data =
-      loadData();
+      await loadData();
+
 
     const users =
       Object.values(
         data.users || {}
       );
 
-    const orders =
-      data.orders || [];
 
     await ctx.reply(
 
@@ -665,18 +724,17 @@ bot.command(
       users.reduce(
         (sum, user) =>
           sum +
-          Number(user.points || 0),
+          Number(
+            user.points || 0
+          ),
         0
-      ) +
-      "\n\n" +
-
-      "📦 الطلبات: " +
-      orders.length
+      )
 
     );
 
   }
 );
+
 
 /* =========================
    👤 USER API
@@ -684,31 +742,112 @@ bot.command(
 
 app.get(
   "/api/user/:id",
-  (req, res) => {
+  async (req, res) => {
 
-    const user =
-      getUser(
-        req.params.id
+    try {
+
+      const user =
+        await getUser(
+          req.params.id
+        );
+
+
+      res.json({
+
+        id:
+          user.id,
+
+        firstName:
+          user.firstName,
+
+        points:
+          user.points,
+
+        referrals:
+          user.referrals
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "USER API ERROR:",
+        error
       );
 
-    res.json({
+      res.status(500).json({
 
-      id:
-        user.id,
+        success: false,
 
-      firstName:
-        user.firstName,
+        message:
+          "حدث خطأ في تحميل بيانات المستخدم."
 
-      points:
-        user.points,
+      });
 
-      referrals:
-        user.referrals
-
-    });
+    }
 
   }
 );
+
+
+/* =========================
+   🎁 DAILY REWARD API
+========================= */
+
+app.post(
+  "/api/rewards/daily",
+  async (req, res) => {
+
+    try {
+
+      const {
+        userId
+      } = req.body;
+
+
+      if (!userId) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "معرّف المستخدم مفقود."
+
+        });
+
+      }
+
+
+      const result =
+        await claimDailyReward(
+          userId
+        );
+
+
+      res.json(result);
+
+    } catch (error) {
+
+      console.error(
+        "DAILY ERROR:",
+        error
+      );
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "❌ حدث خطأ، حاول مرة ثانية."
+
+      });
+
+    }
+
+  }
+);
+
 
 /* =========================
    📦 ORDER API
@@ -716,50 +855,133 @@ app.get(
 
 app.post(
   "/api/order",
-  (req, res) => {
+  async (req, res) => {
 
-    const {
-      userId,
-      uc,
-      cost,
-      playerId
-    } = req.body;
+    try {
 
-    if (
-      !userId ||
-      !uc ||
-      cost === undefined ||
-      !playerId
-    ) {
+      const {
+        userId,
+        uc,
+        cost,
+        playerId
+      } = req.body;
 
-      return res.status(400).json({
+
+      if (
+        !userId ||
+        !uc ||
+        cost === undefined ||
+        !playerId
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "⚠️ بيانات الطلب ناقصة.\n\n" +
+            "تأكد من إدخال Player ID."
+
+        });
+
+      }
+
+
+      const result =
+        await createOrder(
+
+          userId,
+
+          Number(uc),
+
+          Number(cost),
+
+          String(playerId)
+
+        );
+
+
+      res.json(result);
+
+    } catch (error) {
+
+      console.error(
+        "ORDER ERROR:",
+        error
+      );
+
+      res.status(500).json({
 
         success: false,
 
         message:
-          "⚠️ بيانات الطلب ناقصة.\n\n" +
-          "تأكد من إدخال Player ID بشكل صحيح."
+          "❌ حدث خطأ أثناء إنشاء الطلب."
 
       });
+
     }
-
-    const result =
-      createOrder(
-
-        userId,
-
-        Number(uc),
-
-        Number(cost),
-
-        String(playerId)
-
-      );
-
-    res.json(result);
 
   }
 );
+
+
+/* =========================
+   📦 ORDERS API
+========================= */
+
+app.get(
+  "/api/orders/:id",
+  async (req, res) => {
+
+    try {
+
+      const orders =
+        await getOrders(
+          req.params.id
+        );
+
+
+      res.json(
+        orders.map(o => ({
+
+          id:
+            o.id,
+
+          userId:
+            o.user_id,
+
+          uc:
+            o.uc,
+
+          cost:
+            o.cost,
+
+          playerId:
+            o.player_id,
+
+          status:
+            o.status,
+
+          createdAt:
+            o.created_at
+
+        }))
+      );
+
+    } catch (error) {
+
+      console.error(
+        "ORDERS ERROR:",
+        error
+      );
+
+      res.status(500).json([]);
+
+    }
+
+  }
+);
+
 
 /* =========================
    🔐 WEBHOOK
@@ -780,15 +1002,17 @@ app.post(
     } catch (error) {
 
       console.error(
-        "Webhook error:",
+        "WEBHOOK ERROR:",
         error
       );
 
       res.sendStatus(500);
+
     }
 
   }
 );
+
 
 /* =========================
    🚀 SERVER
@@ -802,6 +1026,7 @@ app.listen(
       `UC HUB server running on port ${PORT}`
     );
 
+
     try {
 
       await bot.telegram.setWebhook(
@@ -809,6 +1034,7 @@ app.listen(
         `https://uc-hubuc-hub.onrender.com/telegram/${WEBHOOK_SECRET}`
 
       );
+
 
       console.log(
         "Telegram webhook enabled 🚀"
@@ -820,6 +1046,7 @@ app.listen(
         "Webhook setup failed:",
         error
       );
+
     }
 
   }
