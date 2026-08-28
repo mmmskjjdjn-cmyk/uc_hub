@@ -13,8 +13,9 @@ const {
 
 const app = express();
 
-const bot =
-  new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf(
+  process.env.BOT_TOKEN
+);
 
 const PORT =
   process.env.PORT || 3000;
@@ -31,6 +32,7 @@ const OWNER_ID =
 
 const CHANNEL =
   "@FREEUC_60";
+
 
 app.use(express.json());
 
@@ -92,7 +94,7 @@ async function isSubscribed(userId) {
 
 
 /* =========================
-   📢 SUBSCRIPTION MESSAGE
+   📢 REQUIRE SUBSCRIPTION
 ========================= */
 
 async function requireSubscription(ctx) {
@@ -102,9 +104,9 @@ async function requireSubscription(ctx) {
     "🔒 الاشتراك مطلوب\n\n" +
 
     "حتى تستخدم UC HUB لازم تشترك " +
-    "في قناة البوت أولاً.\n\n" +
+    "في القناة أولاً.\n\n" +
 
-    "📢 اشترك ثم اضغط زر التحقق 👇",
+    "📢 اشترك ثم اضغط تحقق 👇",
 
     Markup.inlineKeyboard([
 
@@ -199,7 +201,7 @@ bot.start(async (ctx) => {
 
 
     /*
-      المالك يدخل مباشرة
+      المالك يتجاوز الاشتراك
     */
 
     if (
@@ -223,7 +225,7 @@ bot.start(async (ctx) => {
 
 
     /*
-      معرفة المستخدم قبل إنشائه
+      نقرأ البيانات قبل إنشاء المستخدم
     */
 
     const before =
@@ -289,11 +291,6 @@ bot.start(async (ctx) => {
           updated.users || {}
         ).length;
 
-      const username =
-        user.username
-          ? "@" + user.username
-          : "لا يوجد";
-
 
       try {
 
@@ -315,7 +312,11 @@ bot.start(async (ctx) => {
           "\n\n" +
 
           "🔗 Username: " +
-          username +
+          (
+            user.username
+              ? "@" + user.username
+              : "لا يوجد"
+          ) +
           "\n\n" +
 
           "👥 إجمالي المستخدمين: " +
@@ -329,7 +330,7 @@ bot.start(async (ctx) => {
       } catch (error) {
 
         console.error(
-          "Owner notification:",
+          "Owner notification error:",
           error
         );
 
@@ -339,7 +340,7 @@ bot.start(async (ctx) => {
 
 
     /*
-      رسالة المالك
+      رسالة المستخدم
     */
 
     if (
@@ -349,7 +350,6 @@ bot.start(async (ctx) => {
       await ctx.reply(
 
         "👑 أهلاً بك يا مالك UC HUB!\n\n" +
-
         "🎮 لوحة التحكم جاهزة.",
 
         ownerKeyboard()
@@ -360,11 +360,8 @@ bot.start(async (ctx) => {
 
       await ctx.reply(
 
-        "🎉 أهلاً بك في UC HUB!\n\n" +
-
-        "🪙 اجمع النقاط واستبدلها بالمكافآت.\n\n" +
-
-        "🔥 بالتوفيق!",
+        "🎮 أهلاً بك في UC HUB!\n\n" +
+        "🪙 اجمع النقاط واستبدلها بالمكافآت.",
 
         normalKeyboard()
 
@@ -433,9 +430,7 @@ bot.action(
       await ctx.reply(
 
         "🎉 تم التحقق بنجاح!\n\n" +
-
         "✅ اشتراكك مؤكد.\n" +
-
         "🚀 يمكنك الآن استخدام UC HUB.",
 
         normalKeyboard()
@@ -466,7 +461,7 @@ bot.action(
 
 
 /* =========================
-   📊 STATS
+   📊 STATS FUNCTION
 ========================= */
 
 async function sendStats(ctx) {
@@ -476,100 +471,148 @@ async function sendStats(ctx) {
   ) {
 
     return ctx.answerCbQuery(
-      "❌ للمالك فقط."
+      "❌ هذا الزر للمالك فقط."
     );
 
   }
 
 
-  const data =
-    await loadData();
+  try {
+
+    /*
+      تحميل البيانات من Supabase
+    */
+
+    const data =
+      await loadData();
 
 
-  const users =
-    Object.values(
-      data.users || {}
+    const users =
+      Object.values(
+        data.users || {}
+      );
+
+    const orders =
+      data.orders || [];
+
+    const referrals =
+      data.referrals || {};
+
+
+    /*
+      إجمالي المستخدمين
+    */
+
+    const totalUsers =
+      users.length;
+
+
+    /*
+      مجموع النقاط
+    */
+
+    const totalPoints =
+      users.reduce(
+        (sum, user) =>
+          sum +
+          Number(
+            user.points || 0
+          ),
+        0
+      );
+
+
+    /*
+      الإحالات
+    */
+
+    const totalReferrals =
+      Object.keys(
+        referrals
+      ).length;
+
+
+    /*
+      الطلبات
+    */
+
+    const totalOrders =
+      orders.length;
+
+
+    const pendingOrders =
+      orders.filter(
+        order =>
+          order.status ===
+          "pending"
+      ).length;
+
+
+    const completedOrders =
+      orders.filter(
+        order =>
+          order.status ===
+          "completed"
+      ).length;
+
+
+    await ctx.answerCbQuery(
+      "📊 تم تحديث الإحصائيات"
     );
 
-  const orders =
-    data.orders || [];
 
-  const referrals =
-    data.referrals || {};
+    await ctx.reply(
 
+      "📊🔥 إحصائيات UC HUB\n\n" +
 
-  const totalUsers =
-    users.length;
+      "👥 إجمالي المستخدمين:\n" +
+      totalUsers +
+      "\n\n" +
 
-  const totalPoints =
-    users.reduce(
-      (sum, user) =>
-        sum +
-        Number(
-          user.points || 0
-        ),
-      0
+      "🪙 مجموع النقاط:\n" +
+      totalPoints +
+      "\n\n" +
+
+      "🔗 إجمالي الإحالات:\n" +
+      totalReferrals +
+      "\n\n" +
+
+      "📦 إجمالي الطلبات:\n" +
+      totalOrders +
+      "\n\n" +
+
+      "⏳ قيد المعالجة:\n" +
+      pendingOrders +
+      "\n\n" +
+
+      "✅ الطلبات المكتملة:\n" +
+      completedOrders +
+      "\n\n" +
+
+      "💾 البيانات محفوظة في Supabase\n\n" +
+
+      "🔥 UC HUB"
+
     );
 
-  const totalReferrals =
-    Object.keys(
-      referrals
-    ).length;
+  } catch (error) {
 
-  const totalOrders =
-    orders.length;
+    console.error(
+      "STATS ERROR:",
+      error
+    );
 
-  const pendingOrders =
-    orders.filter(
-      o =>
-        o.status ===
-        "pending"
-    ).length;
+    await ctx.answerCbQuery(
 
-  const completedOrders =
-    orders.filter(
-      o =>
-        o.status ===
-        "completed"
-    ).length;
+      "❌ حدث خطأ أثناء تحميل الإحصائيات.",
 
+      {
+        show_alert: true
+      }
 
-  await ctx.answerCbQuery(
-    "📊 تم تحديث الإحصائيات"
-  );
+    );
 
-
-  await ctx.reply(
-
-    "📊🔥 إحصائيات UC HUB\n\n" +
-
-    "👥 إجمالي المستخدمين: " +
-    totalUsers +
-    "\n\n" +
-
-    "🪙 مجموع النقاط: " +
-    totalPoints +
-    "\n\n" +
-
-    "🔗 إجمالي الإحالات: " +
-    totalReferrals +
-    "\n\n" +
-
-    "📦 إجمالي الطلبات: " +
-    totalOrders +
-    "\n\n" +
-
-    "⏳ قيد المعالجة: " +
-    pendingOrders +
-    "\n\n" +
-
-    "✅ المكتملة: " +
-    completedOrders +
-    "\n\n" +
-
-    "🔥 UC HUB"
-
-  );
+  }
 
 }
 
@@ -584,17 +627,15 @@ bot.action(
 
     try {
 
-      await sendStats(ctx);
+      await sendStats(
+        ctx
+      );
 
     } catch (error) {
 
       console.error(
-        "STATS ERROR:",
+        "STATS BUTTON ERROR:",
         error
-      );
-
-      await ctx.answerCbQuery(
-        "❌ حدث خطأ"
       );
 
     }
@@ -624,25 +665,53 @@ bot.action(
 
     try {
 
-      const user =
-        await getUser(
-          ctx.from.id,
-          ctx.from.first_name ||
-          "Owner"
-        );
-
-
       const data =
         await loadData();
 
 
-      data.users[
-        String(ctx.from.id)
-      ].points += 1000;
+      const id =
+        String(ctx.from.id);
+
+
+      await getUser(
+        ctx.from.id,
+        ctx.from.first_name ||
+        "Owner"
+      );
+
+
+      const updated =
+        await loadData();
+
+
+      if (
+        !updated.users[id]
+      ) {
+
+        return ctx.answerCbQuery(
+          "❌ المستخدم غير موجود."
+        );
+
+      }
+
+
+      updated.users[id].points =
+        Number(
+          updated.users[id].points || 0
+        ) + 1000;
+
+
+      /*
+        حفظ النقاط في Supabase
+      */
+
+      const {
+        saveData
+      } = require("./database");
 
 
       await saveData(
-        data
+        updated
       );
 
 
@@ -655,13 +724,10 @@ bot.action(
 
         "👑 تمت إضافة 1000 نقطة بنجاح!\n\n" +
 
-        "🪙 +1000 نقطة\n\n" +
+        "🪙 النقاط المضافة: +1000\n\n" +
 
         "💰 رصيدك الآن: " +
-        (
-          Number(user.points) +
-          1000
-        ) +
+        updated.users[id].points +
         " نقطة"
 
       );
@@ -702,35 +768,20 @@ bot.command(
     }
 
 
-    const data =
-      await loadData();
+    try {
 
-
-    const users =
-      Object.values(
-        data.users || {}
+      await sendStats(
+        ctx
       );
 
+    } catch (error) {
 
-    await ctx.reply(
+      console.error(
+        "COMMAND STATS ERROR:",
+        error
+      );
 
-      "📊🔥 إحصائيات UC HUB\n\n" +
-
-      "👥 المستخدمون: " +
-      users.length +
-      "\n\n" +
-
-      "🪙 مجموع النقاط: " +
-      users.reduce(
-        (sum, user) =>
-          sum +
-          Number(
-            user.points || 0
-          ),
-        0
-      )
-
-    );
+    }
 
   }
 );
@@ -791,7 +842,7 @@ app.get(
 
 
 /* =========================
-   🎁 DAILY REWARD API
+   🎁 DAILY REWARD
 ========================= */
 
 app.post(
@@ -825,7 +876,9 @@ app.post(
         );
 
 
-      res.json(result);
+      res.json(
+        result
+      );
 
     } catch (error) {
 
@@ -879,8 +932,7 @@ app.post(
           success: false,
 
           message:
-            "⚠️ بيانات الطلب ناقصة.\n\n" +
-            "تأكد من إدخال Player ID."
+            "⚠️ بيانات الطلب ناقصة."
 
         });
 
@@ -901,7 +953,9 @@ app.post(
         );
 
 
-      res.json(result);
+      res.json(
+        result
+      );
 
     } catch (error) {
 
@@ -942,30 +996,34 @@ app.get(
 
 
       res.json(
-        orders.map(o => ({
 
-          id:
-            o.id,
+        orders.map(
+          order => ({
 
-          userId:
-            o.user_id,
+            id:
+              order.id,
 
-          uc:
-            o.uc,
+            userId:
+              order.user_id,
 
-          cost:
-            o.cost,
+            uc:
+              order.uc,
 
-          playerId:
-            o.player_id,
+            cost:
+              order.cost,
 
-          status:
-            o.status,
+            playerId:
+              order.player_id,
 
-          createdAt:
-            o.created_at
+            status:
+              order.status,
 
-        }))
+            createdAt:
+              order.created_at
+
+          })
+        )
+
       );
 
     } catch (error) {
@@ -997,7 +1055,9 @@ app.post(
         req.body
       );
 
-      res.sendStatus(200);
+      res.sendStatus(
+        200
+      );
 
     } catch (error) {
 
@@ -1006,7 +1066,9 @@ app.post(
         error
       );
 
-      res.sendStatus(500);
+      res.sendStatus(
+        500
+      );
 
     }
 
