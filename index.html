@@ -25,10 +25,20 @@ radial-gradient(circle at 50% 100%,#00ff9d15,transparent 35%),
 #050711;
 }
 
+button{
+border:0;
+cursor:pointer;
+transition:.15s;
+}
+
+button:active{
+transform:scale(.96);
+}
+
 .app{
 max-width:480px;
 margin:auto;
-padding:18px 15px 40px;
+padding:18px 15px 45px;
 }
 
 .logo{
@@ -84,55 +94,156 @@ font-weight:900;
 margin:22px 2px 12px;
 }
 
-.cards{
+.platforms{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:11px;
+gap:12px;
 }
 
-.card{
-padding:18px 12px;
-border-radius:21px;
-background:#101729dd;
-border:1px solid #00d9ff22;
+.platform{
+padding:20px 12px;
+border-radius:23px;
+background:linear-gradient(145deg,#111a2ddd,#0b1020ee);
+border:1px solid #ffffff12;
 text-align:center;
-box-shadow:0 8px 25px #0003;
+box-shadow:0 10px 30px #0004;
+cursor:pointer;
+transition:.2s;
 }
 
-.icon{
-font-size:30px;
+.platform:hover{
+transform:translateY(-3px);
+border-color:#00d9ff55;
 }
 
-.uc{
-font-size:22px;
+.platform .big{
+font-size:42px;
+margin-bottom:8px;
+}
+
+.platform h3{
+font-size:17px;
+margin-bottom:5px;
+}
+
+.platform p{
+font-size:11px;
+color:#8f9ab0;
+}
+
+.service-box{
+display:none;
+margin-top:14px;
+padding:16px;
+border-radius:22px;
+background:#0d1426ee;
+border:1px solid #00d9ff22;
+}
+
+.service-box.active{
+display:block;
+animation:show .25s ease;
+}
+
+@keyframes show{
+from{
+opacity:0;
+transform:translateY(8px)
+}
+to{
+opacity:1;
+transform:translateY(0)
+}
+}
+
+.service-title{
+font-size:20px;
 font-weight:1000;
-margin:5px 0;
-}
-
-.cost{
-color:#ffd43b;
-font-weight:900;
-font-size:14px;
 margin-bottom:12px;
 }
 
-button{
-border:0;
-cursor:pointer;
-transition:.15s;
+.service{
+padding:15px;
+margin-top:9px;
+border-radius:17px;
+background:#ffffff07;
+border:1px solid #ffffff0b;
 }
 
-button:active{
-transform:scale(.96);
+.service-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
 }
 
-.buy{
-width:100%;
-padding:12px;
-border-radius:13px;
-background:linear-gradient(135deg,#00d9ff,#72efff);
+.service-name{
+font-weight:900;
+font-size:15px;
+}
+
+.service-price{
+color:#ffd43b;
 font-weight:1000;
+white-space:nowrap;
+}
+
+.service-desc{
+font-size:11px;
+color:#8f9ab0;
+line-height:1.6;
+margin:8px 0 12px;
+}
+
+.order-btn{
+width:100%;
+padding:11px;
+border-radius:12px;
+background:linear-gradient(135deg,#00d9ff,#72efff);
 color:#061018;
+font-weight:1000;
+}
+
+.games{
+margin-top:22px;
+}
+
+.game{
+display:flex;
+align-items:center;
+gap:12px;
+padding:15px;
+margin-top:9px;
+border-radius:18px;
+background:#101729dd;
+border:1px solid #ffffff0b;
+}
+
+.game-icon{
+font-size:30px;
+}
+
+.game-info{
+flex:1;
+}
+
+.game-info b{
+font-size:15px;
+}
+
+.game-info small{
+display:block;
+color:#8f9ab0;
+font-size:11px;
+margin-top:4px;
+}
+
+.game-btn{
+padding:10px 13px;
+border-radius:11px;
+background:#7957ff;
+color:white;
+font-weight:900;
 }
 
 .section{
@@ -238,6 +349,31 @@ background:#101729dd;
 border-radius:18px;
 }
 
+.close{
+width:100%;
+padding:11px;
+margin-top:10px;
+border-radius:12px;
+background:#ffffff0a;
+color:#aaa;
+font-weight:900;
+}
+
+.search{
+width:100%;
+padding:13px;
+margin-bottom:13px;
+border-radius:14px;
+border:1px solid #ffffff12;
+background:#ffffff08;
+color:white;
+outline:none;
+font-size:14px;
+}
+
+.search::placeholder{
+color:#7f899d;
+}
 </style>
 </head>
 
@@ -258,67 +394,402 @@ border-radius:18px;
 </div>
 
 <div class="balance">
-
 <small>🪙 رصيدك الحالي</small>
-
-<div class="points" id="points">
-0 🪙
+<div class="points" id="points">0 🪙</div>
 </div>
 
-</div>
+
+<!-- =========================
+     SOCIAL
+========================= -->
 
 <div class="title">
-🎮 متجر UC
+🚀 الخدمات الرقمية
 </div>
 
-<div class="cards">
+<input
+class="search"
+id="search"
+placeholder="🔎 ابحث عن منصة أو خدمة..."
+oninput="searchServices()"
+>
 
-<div class="card">
-<div class="icon">💎</div>
-<div class="uc">60 UC</div>
-<div class="cost">30 نقطة</div>
-<button class="buy" onclick="buyUC(60,30)">
-استبدال
+<div class="platforms">
+
+<div class="platform" onclick="openPlatform('instagram')">
+<div class="big">📸</div>
+<h3>Instagram</h3>
+<p>تصميم • محتوى • إدارة</p>
+</div>
+
+<div class="platform" onclick="openPlatform('tiktok')">
+<div class="big">🎵</div>
+<h3>TikTok</h3>
+<p>فيديو • مونتاج • ترويج</p>
+</div>
+
+<div class="platform" onclick="openPlatform('youtube')">
+<div class="big">▶️</div>
+<h3>YouTube</h3>
+<p>Thumbnail • Shorts • محتوى</p>
+</div>
+
+<div class="platform" onclick="openPlatform('telegram')">
+<div class="big">✈️</div>
+<h3>Telegram</h3>
+<p>بوتات • قنوات • Mini Apps</p>
+</div>
+
+<div class="platform" onclick="openPlatform('snapchat')">
+<div class="big">👻</div>
+<h3>Snapchat</h3>
+<p>تصميم • فيديو • محتوى</p>
+</div>
+
+<div class="platform" onclick="openPlatform('facebook')">
+<div class="big">📘</div>
+<h3>Facebook</h3>
+<p>صفحات • تصميم • محتوى</p>
+</div>
+
+</div>
+
+
+<div id="instagram" class="service-box">
+
+<div class="service-title">📸 Instagram</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">🎨 تصميم منشور</div>
+<div class="service-price">20 🪙</div>
+</div>
+<div class="service-desc">
+تصميم منشور احترافي مناسب لهوية حسابك.
+</div>
+<button class="order-btn"
+onclick="requestService('Instagram - تصميم منشور',20)">
+طلب الخدمة
 </button>
 </div>
 
-<div class="card">
-<div class="icon">💎</div>
-<div class="uc">325 UC</div>
-<div class="cost">70 نقطة</div>
-<button class="buy" onclick="buyUC(325,70)">
-استبدال
+<div class="service">
+<div class="service-top">
+<div class="service-name">🎬 مونتاج Reel</div>
+<div class="service-price">50 🪙</div>
+</div>
+<div class="service-desc">
+مونتاج فيديو قصير مناسب للنشر على Instagram.
+</div>
+<button class="order-btn"
+onclick="requestService('Instagram - مونتاج Reel',50)">
+طلب الخدمة
 </button>
 </div>
 
-<div class="card">
-<div class="icon">💎</div>
-<div class="uc">660 UC</div>
-<div class="cost">100 نقطة</div>
-<button class="buy" onclick="buyUC(660,100)">
-استبدال
+<div class="service">
+<div class="service-top">
+<div class="service-name">📢 إعداد حملة ترويج</div>
+<div class="service-price">100 🪙</div>
+</div>
+<div class="service-desc">
+مساعدة في تجهيز محتوى وحملة ترويجية للحساب.
+</div>
+<button class="order-btn"
+onclick="requestService('Instagram - حملة ترويج',100)">
+طلب الخدمة
 </button>
 </div>
 
-<div class="card">
-<div class="icon">💎</div>
-<div class="uc">1800 UC</div>
-<div class="cost">220 نقطة</div>
-<button class="buy" onclick="buyUC(1800,220)">
-استبدال
+<button class="close" onclick="closePlatforms()">إغلاق</button>
+
+</div>
+
+
+<div id="tiktok" class="service-box">
+
+<div class="service-title">🎵 TikTok</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">🎬 مونتاج TikTok</div>
+<div class="service-price">55 🪙</div>
+</div>
+<div class="service-desc">
+تحرير فيديو قصير وتجهيزه للنشر.
+</div>
+<button class="order-btn"
+onclick="requestService('TikTok - مونتاج فيديو',55)">
+طلب الخدمة
+</button>
+</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">🎨 تصميم غلاف</div>
+<div class="service-price">25 🪙</div>
+</div>
+<div class="service-desc">
+تصميم بصري احترافي للفيديو أو الحساب.
+</div>
+<button class="order-btn"
+onclick="requestService('TikTok - تصميم',25)">
+طلب الخدمة
+</button>
+</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">📢 إعداد حملة ترويج</div>
+<div class="service-price">110 🪙</div>
+</div>
+<div class="service-desc">
+تجهيز محتوى مناسب لحملة ترويجية.
+</div>
+<button class="order-btn"
+onclick="requestService('TikTok - حملة ترويج',110)">
+طلب الخدمة
+</button>
+</div>
+
+<button class="close" onclick="closePlatforms()">إغلاق</button>
+
+</div>
+
+
+<div id="youtube" class="service-box">
+
+<div class="service-title">▶️ YouTube</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">🖼️ Thumbnail</div>
+<div class="service-price">30 🪙</div>
+</div>
+<div class="service-desc">
+تصميم صورة مصغرة جذابة للفيديو.
+</div>
+<button class="order-btn"
+onclick="requestService('YouTube - Thumbnail',30)">
+طلب الخدمة
+</button>
+</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">🎬 مونتاج Shorts</div>
+<div class="service-price">60 🪙</div>
+</div>
+<div class="service-desc">
+مونتاج فيديو قصير وتجهيزه ليوتيوب.
+</div>
+<button class="order-btn"
+onclick="requestService('YouTube - Shorts',60)">
+طلب الخدمة
+</button>
+</div>
+
+<button class="close" onclick="closePlatforms()">إغلاق</button>
+
+</div>
+
+
+<div id="telegram" class="service-box">
+
+<div class="service-title">✈️ Telegram</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">🤖 إنشاء بوت</div>
+<div class="service-price">150 🪙</div>
+</div>
+<div class="service-desc">
+إنشاء بوت Telegram حسب احتياجاتك.
+</div>
+<button class="order-btn"
+onclick="requestService('Telegram - إنشاء بوت',150)">
+طلب الخدمة
+</button>
+</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">📱 Mini App</div>
+<div class="service-price">250 🪙</div>
+</div>
+<div class="service-desc">
+تصميم Mini App متكامل داخل Telegram.
+</div>
+<button class="order-btn"
+onclick="requestService('Telegram - Mini App',250)">
+طلب الخدمة
+</button>
+</div>
+
+<button class="close" onclick="closePlatforms()">إغلاق</button>
+
+</div>
+
+
+<div id="snapchat" class="service-box">
+
+<div class="service-title">👻 Snapchat</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">🎨 تصميم محتوى</div>
+<div class="service-price">30 🪙</div>
+</div>
+<div class="service-desc">
+تصميم محتوى مناسب للقصص والمنشورات.
+</div>
+<button class="order-btn"
+onclick="requestService('Snapchat - تصميم محتوى',30)">
+طلب الخدمة
+</button>
+</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">🎬 تحرير فيديو</div>
+<div class="service-price">55 🪙</div>
+</div>
+<div class="service-desc">
+تحرير وتجهيز فيديو قصير للنشر.
+</div>
+<button class="order-btn"
+onclick="requestService('Snapchat - تحرير فيديو',55)">
+طلب الخدمة
+</button>
+</div>
+
+<button class="close" onclick="closePlatforms()">إغلاق</button>
+
+</div>
+
+
+<div id="facebook" class="service-box">
+
+<div class="service-title">📘 Facebook</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">🎨 تصميم منشور</div>
+<div class="service-price">25 🪙</div>
+</div>
+<div class="service-desc">
+تصميم منشور احترافي للصفحات.
+</div>
+<button class="order-btn"
+onclick="requestService('Facebook - تصميم منشور',25)">
+طلب الخدمة
+</button>
+</div>
+
+<div class="service">
+<div class="service-top">
+<div class="service-name">📢 إعداد حملة</div>
+<div class="service-price">120 🪙</div>
+</div>
+<div class="service-desc">
+تجهيز مواد لحملة ترويجية.
+</div>
+<button class="order-btn"
+onclick="requestService('Facebook - حملة ترويج',120)">
+طلب الخدمة
+</button>
+</div>
+
+<button class="close" onclick="closePlatforms()">إغلاق</button>
+
+</div>
+
+
+<!-- =========================
+     GAMES
+========================= -->
+
+<div class="section games">
+
+<h2>🎮 خدمات الألعاب</h2>
+
+<p>
+خدمات رقمية مثل التصميم، المحتوى والمساعدة التقنية.
+</p>
+
+<div class="game">
+<div class="game-icon">🎮</div>
+<div class="game-info">
+<b>PUBG Mobile</b>
+<small>تصميم • محتوى • مساعدة تقنية</small>
+</div>
+<button class="game-btn"
+onclick="requestService('PUBG Mobile - خدمة رقمية',80)">
+طلب
+</button>
+</div>
+
+<div class="game">
+<div class="game-icon">🔥</div>
+<div class="game-info">
+<b>Free Fire</b>
+<small>تصميم • محتوى • مساعدة تقنية</small>
+</div>
+<button class="game-btn"
+onclick="requestService('Free Fire - خدمة رقمية',80)">
+طلب
+</button>
+</div>
+
+<div class="game">
+<div class="game-icon">🟩</div>
+<div class="game-info">
+<b>Roblox</b>
+<small>تصميم • محتوى • مساعدة</small>
+</div>
+<button class="game-btn"
+onclick="requestService('Roblox - خدمة رقمية',70)">
+طلب
+</button>
+</div>
+
+<div class="game">
+<div class="game-icon">⛏️</div>
+<div class="game-info">
+<b>Minecraft</b>
+<small>تصميم • محتوى • مساعدة</small>
+</div>
+<button class="game-btn"
+onclick="requestService('Minecraft - خدمة رقمية',70)">
+طلب
+</button>
+</div>
+
+<div class="game">
+<div class="game-icon">🏆</div>
+<div class="game-info">
+<b>Fortnite</b>
+<small>تصميم • محتوى • مساعدة</small>
+</div>
+<button class="game-btn"
+onclick="requestService('Fortnite - خدمة رقمية',75)">
+طلب
 </button>
 </div>
 
 </div>
+
+
+<!-- =========================
+     REWARDS
+========================= -->
 
 <div class="section reward">
 
-<h2>
-🎁 اجمع نقاط مجانية
-</h2>
+<h2>🎁 اجمع نقاط مجانية</h2>
 
 <p>
-أنجز المهام واحصل على نقاط تساعدك على استبدال UC مجاناً.
+أنجز المهام واحصل على نقاط تساعدك على استخدام الخدمات.
 </p>
 
 <button onclick="dailyReward()">
@@ -331,63 +802,54 @@ border-radius:18px;
 
 </div>
 
+
+<!-- =========================
+     STARS
+========================= -->
+
 <div class="section stars">
 
-<h2>
-⭐ شراء النقاط
-</h2>
+<h2>⭐ شراء النقاط</h2>
 
 <p>
 اشترِ النقاط باستخدام Telegram Stars.
 </p>
 
 <div class="star">
-<div>
-<b>100 ⭐</b><br>
-50 🪙 نقطة
-</div>
+<div><b>100 ⭐</b><br>50 🪙 نقطة</div>
 <button onclick="buyStars(100)">شراء</button>
 </div>
 
 <div class="star">
-<div>
-<b>200 ⭐</b><br>
-100 🪙 نقطة
-</div>
+<div><b>200 ⭐</b><br>100 🪙 نقطة</div>
 <button onclick="buyStars(200)">شراء</button>
 </div>
 
 <div class="star">
-<div>
-<b>500 ⭐</b><br>
-250 🪙 نقطة
-</div>
+<div><b>500 ⭐</b><br>250 🪙 نقطة</div>
 <button onclick="buyStars(500)">شراء</button>
 </div>
 
 <div class="star">
-<div>
-<b>1000 ⭐</b><br>
-500 🪙 نقطة
-</div>
+<div><b>1000 ⭐</b><br>500 🪙 نقطة</div>
 <button onclick="buyStars(1000)">شراء</button>
 </div>
 
 <div class="star">
-<div>
-<b>2000 ⭐</b><br>
-1000 🪙 نقطة
-</div>
+<div><b>2000 ⭐</b><br>1000 🪙 نقطة</div>
 <button onclick="buyStars(2000)">شراء</button>
 </div>
 
 </div>
 
+
+<!-- =========================
+     INVITE
+========================= -->
+
 <div class="section invite">
 
-<h2>
-🔗 ادعُ أصدقاءك
-</h2>
+<h2>🔗 ادعُ أصدقاءك</h2>
 
 <p>
 شارك رابطك. كل إحالة ناجحة تمنحك +1 نقطة 🪙
@@ -398,6 +860,11 @@ border-radius:18px;
 </button>
 
 </div>
+
+
+<!-- =========================
+     ORDERS
+========================= -->
 
 <div class="orders">
 
@@ -417,9 +884,11 @@ border-radius:18px;
 
 </div>
 
+
 <script>
 
-const tg=window.Telegram?.WebApp;
+const tg =
+window.Telegram?.WebApp;
 
 if(tg){
 tg.ready();
@@ -429,8 +898,11 @@ tg.expand();
 let points=0;
 
 function user(){
+
 return tg?.initDataUnsafe?.user||null;
+
 }
+
 
 async function loadUser(){
 
@@ -443,10 +915,14 @@ document.getElementById("welcome").textContent=
 
 try{
 
-const r=await fetch("/api/user/"+u.id);
-const d=await r.json();
+const r=
+await fetch("/api/user/"+u.id);
 
-points=Number(d.points||0);
+const d=
+await r.json();
+
+points=
+Number(d.points||0);
 
 document.getElementById("points").textContent=
 points+" 🪙";
@@ -462,7 +938,192 @@ console.error(e);
 }
 
 
-/* 🎁 الهدية اليومية */
+/* =========================
+   PLATFORM
+========================= */
+
+function openPlatform(id){
+
+document
+.querySelectorAll(".service-box")
+.forEach(x=>{
+x.classList.remove("active");
+});
+
+const box=
+document.getElementById(id);
+
+if(box){
+
+box.classList.add("active");
+
+box.scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
+
+}
+
+}
+
+
+function closePlatforms(){
+
+document
+.querySelectorAll(".service-box")
+.forEach(x=>{
+x.classList.remove("active");
+});
+
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+function searchServices(){
+
+const q=
+document
+.getElementById("search")
+.value
+.toLowerCase()
+.trim();
+
+document
+.querySelectorAll(".platform")
+.forEach(card=>{
+
+const text=
+card.innerText
+.toLowerCase();
+
+card.style.display=
+!q||text.includes(q)
+?"block"
+:"none";
+
+});
+
+}
+
+
+/* =========================
+   SERVICE ORDER
+========================= */
+
+async function requestService(
+serviceName,
+cost
+){
+
+const u=user();
+
+if(!u){
+
+alert(
+"⚠️ افتح UC HUB من داخل Telegram"
+);
+
+return;
+
+}
+
+if(points<cost){
+
+alert(
+"❌ رصيدك غير كافٍ\n\n"+
+"🪙 رصيدك: "+points+
+"\n🎯 المطلوب: "+cost
+);
+
+return;
+
+}
+
+
+const details=
+prompt(
+"📝 اكتب تفاصيل الخدمة أو الرابط المطلوب:"
+);
+
+if(!details)return;
+
+
+try{
+
+const r=
+await fetch(
+"/api/order",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+
+userId:u.id,
+
+uc:0,
+
+cost:cost,
+
+playerId:
+serviceName+
+" | "+
+details
+
+})
+}
+);
+
+
+const d=
+await r.json();
+
+
+if(d.success){
+
+alert(
+"🎉 تم إرسال طلبك!\n\n"+
+"🛠️ الخدمة: "+
+serviceName+
+"\n"+
+"🪙 التكلفة: "+
+cost+
+" نقطة\n\n"+
+"📦 الطلب الآن قيد المعالجة."
+);
+
+loadUser();
+
+}else{
+
+alert(
+"❌ لم يتم إنشاء الطلب\n\n"+
+(d.message||
+"حدث خطأ.")
+);
+
+}
+
+}catch(e){
+
+console.error(e);
+
+alert(
+"❌ تعذر إرسال الطلب."
+);
+
+}
+
+}
+
+
+/* =========================
+   DAILY
+========================= */
 
 async function dailyReward(){
 
@@ -480,7 +1141,8 @@ return;
 
 try{
 
-const r=await fetch(
+const r=
+await fetch(
 "/api/rewards/daily",
 {
 method:"POST",
@@ -493,25 +1155,23 @@ userId:u.id
 }
 );
 
-const d=await r.json();
+const d=
+await r.json();
 
 if(d.success){
 
 alert(
-"🎉✨ مبروك يا بطل! ✨🎉\n\n"+
-"🎁 استلمت هديتك اليومية بنجاح!\n\n"+
-"🪙 المكافأة: +1 نقطة\n"+
-"💰 رصيدك الآن: "+d.balance+" نقطة\n\n"+
-"🔥 ارجع بكرا وخذ هديتك الجديدة!\n"+
-"🚀 استمر بجمع النقاط واستبدلها بـ UC."
+"🎉 استلمت هديتك اليومية!\n\n"+
+"🪙 +1 نقطة\n"+
+"💰 رصيدك: "+
+d.balance+
+" نقطة"
 );
 
 }else{
 
 alert(
-"⏳ هديتك اليومية تم استلامها مسبقاً!\n\n"+
-"🎁 لا تقلق، هديتك الجديدة تنتظرك غداً.\n\n"+
-"🔥 ارجع بكرا لتحصل على +1 نقطة!"
+"⏳ أخذت هديتك اليوم مسبقًا."
 );
 
 }
@@ -521,8 +1181,7 @@ loadUser();
 }catch(e){
 
 alert(
-"❌ حدث خطأ أثناء استلام الهدية.\n\n"+
-"حاول مرة أخرى بعد قليل."
+"❌ حدث خطأ."
 );
 
 }
@@ -530,21 +1189,15 @@ alert(
 }
 
 
-/* 📢 الاشتراك بالقناة */
+/* =========================
+   CHANNEL
+========================= */
 
 async function joinChannel(){
 
 const u=user();
 
-if(!u){
-
-alert(
-"⚠️ افتح UC HUB من داخل Telegram"
-);
-
-return;
-
-}
+if(!u)return;
 
 if(tg?.openTelegramLink){
 
@@ -559,21 +1212,21 @@ async()=>{
 
 try{
 
-const r=await fetch(
+const r=
+await fetch(
 "/api/rewards/channel?userId="+u.id
 );
 
-const d=await r.json();
+const d=
+await r.json();
 
 if(d.success){
 
 alert(
-"🎉🔥 أحسنت! 🔥🎉\n\n"+
-"📢 تم تأكيد اشتراكك بالقناة!\n\n"+
-"🪙 المكافأة: +1 نقطة\n"+
-"💰 رصيدك الآن: "+d.balance+" نقطة\n\n"+
-"💎 استمر بجمع النقاط\n"+
-"🚀 واستبدلها بمكافآت UC!"
+"🎉 تم تأكيد الاشتراك!\n\n"+
+"🪙 +1 نقطة\n"+
+"💰 رصيدك: "+
+d.balance
 );
 
 loadUser();
@@ -581,11 +1234,7 @@ loadUser();
 }else{
 
 alert(
-"📢 لم يتم تأكيد الاشتراك بعد\n\n"+
-"1️⃣ انضم إلى قناة @FREEUC_60\n"+
-"2️⃣ ارجع إلى UC HUB\n"+
-"3️⃣ اضغط الزر مرة ثانية\n\n"+
-"🪙 عند التأكيد ستحصل على +1 نقطة."
+"📢 لم يتم تأكيد الاشتراك بعد."
 );
 
 }
@@ -593,8 +1242,7 @@ alert(
 }catch(e){
 
 alert(
-"❌ تعذر التحقق من الاشتراك.\n\n"+
-"تأكد من انضمامك إلى @FREEUC_60 ثم حاول مرة أخرى."
+"❌ تعذر التحقق."
 );
 
 }
@@ -606,124 +1254,26 @@ alert(
 }
 
 
-/* 💎 استبدال UC */
-
-async function buyUC(uc,cost){
-
-const u=user();
-
-if(!u){
-
-alert(
-"⚠️ افتح UC HUB من داخل Telegram"
-);
-
-return;
-
-}
-
-if(points<cost){
-
-alert(
-"🪙 رصيدك غير كافٍ!\n\n"+
-"💰 رصيدك الحالي: "+points+" نقطة\n"+
-"🎯 المطلوب: "+cost+" نقطة\n\n"+
-"🎁 طرق جمع النقاط:\n"+
-"• الهدية اليومية +1 🪙\n"+
-"• الاشتراك بالقناة +1 🪙\n"+
-"• دعوة الأصدقاء 🪙\n"+
-"• شراء النقاط ⭐\n\n"+
-"🔥 اجمع نقاطك واستبدلها بـ UC!"
-);
-
-return;
-
-}
-
-const playerID=prompt(
-"🎮 أدخل Player ID الخاص بك:"
-);
-
-if(!playerID)return;
-
-try{
-
-const r=await fetch(
-"/api/order",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-userId:u.id,
-uc:uc,
-cost:cost,
-playerId:playerID
-})
-}
-);
-
-const d=await r.json();
-
-if(d.success){
-
-alert(
-"🎉 تم إنشاء طلبك بنجاح!\n\n"+
-"💎 الباقة: "+uc+" UC\n"+
-"🪙 النقاط المستخدمة: "+cost+"\n"+
-"🆔 Player ID: "+playerID+"\n\n"+
-"📦 طلبك الآن قيد المعالجة.\n"+
-"يمكنك متابعته من قسم «طلباتي»."
-);
-
-loadUser();
-
-}else{
-
-alert(
-"❌ لم يتم إنشاء الطلب\n\n"+
-(d.message||"حدث خطأ، حاول مرة أخرى.")
-);
-
-}
-
-}catch(e){
-
-alert(
-"❌ تعذر إرسال الطلب.\n\n"+
-"حاول مرة أخرى."
-);
-
-}
-
-}
-
-
-/* ⭐ Telegram Stars */
+/* =========================
+   STARS
+========================= */
 
 async function buyStars(stars){
 
 const u=user();
 
-if(!u){
-
-alert(
-"⚠️ افتح UC HUB من داخل Telegram"
-);
-
-return;
-
-}
+if(!u)return;
 
 try{
 
-const r=await fetch(
+const r=
+await fetch(
 "/api/stars/invoice",
 {
 method:"POST",
 headers:{
-"Content-Type":"application/json"
+"Content-Type":
+"application/json"
 },
 body:JSON.stringify({
 stars:stars
@@ -731,12 +1281,15 @@ stars:stars
 }
 );
 
-const d=await r.json();
+const d=
+await r.json();
 
 if(!d.success){
 
 alert(
-"❌ "+(d.message||"تعذر إنشاء عملية الدفع.")
+"❌ "+
+(d.message||
+"تعذر إنشاء الدفع.")
 );
 
 return;
@@ -752,19 +1305,20 @@ status=>{
 if(status==="paid"){
 
 alert(
-"🎉💳 تم الدفع بنجاح!\n\n"+
-"⭐ تم استلام النجوم.\n"+
-"🪙 سيتم إضافة النقاط إلى رصيدك تلقائياً."
+"🎉 تم الدفع بنجاح!"
 );
 
-setTimeout(loadUser,1500);
+setTimeout(
+loadUser,
+1500
+);
 
 }
 
 else if(status==="failed"){
 
 alert(
-"❌ فشل الدفع.\n\nحاول مرة أخرى."
+"❌ فشل الدفع."
 );
 
 }
@@ -772,19 +1326,12 @@ alert(
 else if(status==="cancelled"){
 
 alert(
-"ℹ️ تم إلغاء عملية الدفع."
+"ℹ️ تم إلغاء الدفع."
 );
 
 }
 
 }
-);
-
-}else{
-
-window.open(
-d.invoiceLink,
-"_blank"
 );
 
 }
@@ -792,7 +1339,7 @@ d.invoiceLink,
 }catch(e){
 
 alert(
-"❌ تعذر فتح عملية الدفع."
+"❌ تعذر فتح الدفع."
 );
 
 }
@@ -800,7 +1347,56 @@ alert(
 }
 
 
-/* 📦 الطلبات */
+/* =========================
+   INVITE
+========================= */
+
+function invite(){
+
+const u=user();
+
+if(!u)return;
+
+const link=
+"https://t.me/fre_eucbot?start=ref_"+u.id;
+
+const share=
+"https://t.me/share/url?url="+
+encodeURIComponent(link)+
+"&text="+
+encodeURIComponent(
+"🎮🔥 انضم إلى UC HUB! 🪙"
+);
+
+if(tg?.openTelegramLink){
+
+tg.openTelegramLink(
+share
+);
+
+}else if(navigator.share){
+
+navigator.share({
+title:"UC HUB",
+text:"انضم إلى UC HUB!",
+url:link
+});
+
+}else{
+
+prompt(
+"انسخ رابط الدعوة:",
+link
+);
+
+}
+
+}
+
+
+/* =========================
+   ORDERS
+========================= */
 
 async function loadOrders(){
 
@@ -810,13 +1406,16 @@ if(!u)return;
 
 try{
 
-const r=await fetch(
+const r=
+await fetch(
 "/api/orders/"+u.id
 );
 
-const orders=await r.json();
+const orders=
+await r.json();
 
-const box=document.getElementById("orders");
+const box=
+document.getElementById("orders");
 
 if(!orders.length){
 
@@ -827,26 +1426,28 @@ return;
 
 }
 
-box.innerHTML=orders.reverse().map(o=>`
+box.innerHTML=
+orders.reverse().map(o=>`
 
 <div class="order">
 
-💎 ${o.uc} UC
+🛠️ ${o.playerId}
 
 <br>
 
 🪙 ${o.cost} نقطة
 
 <small>
-🆔 Player ID: ${o.playerId}
+📌 الحالة:
+${statusText(o.status)}
 </small>
 
 <small>
-📌 الحالة: ${statusText(o.status)}
-</small>
-
-<small>
-📅 ${new Date(o.createdAt).toLocaleString("ar")}
+📅 ${
+new Date(
+o.createdAt
+).toLocaleString("ar")
+}
 </small>
 
 </div>
@@ -860,6 +1461,7 @@ console.error(e);
 }
 
 }
+
 
 function statusText(s){
 
@@ -876,49 +1478,6 @@ return s;
 
 }
 
-
-/* 🔗 الدعوات */
-
-function invite(){
-
-const u=user();
-
-if(!u)return;
-
-const link=
-"https://t.me/fre_eucbot?start=ref_"+u.id;
-
-const share=
-"https://t.me/share/url?url="+
-encodeURIComponent(link)+
-"&text="+
-encodeURIComponent(
-"🎮🔥 انضم إلى UC HUB واجمع نقاطك واستبدلها بـ UC! 🪙💎"
-);
-
-if(tg?.openTelegramLink){
-
-tg.openTelegramLink(share);
-
-}else if(navigator.share){
-
-navigator.share({
-title:"UC HUB",
-text:
-"🎮🔥 انضم إلى UC HUB واجمع نقاطك واستبدلها بـ UC! 🪙💎",
-url:link
-});
-
-}else{
-
-prompt(
-"انسخ رابط الدعوة:",
-link
-);
-
-}
-
-}
 
 loadUser();
 
