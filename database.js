@@ -1,9 +1,39 @@
 const { createClient } = require("@supabase/supabase-js");
 
+/* =========================
+   🔐 SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  process.env.SUPABASE_URL;
+
+const SUPABASE_KEY =
+  process.env.SUPABASE_KEY;
+
+if (!SUPABASE_URL) {
+  throw new Error(
+    "❌ SUPABASE_URL غير موجود في Environment Variables"
+  );
+}
+
+if (!SUPABASE_KEY) {
+  throw new Error(
+    "❌ SUPABASE_KEY غير موجود في Environment Variables"
+  );
+}
+
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
+  SUPABASE_URL,
+  SUPABASE_KEY,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false
+    }
+  }
 );
+
 
 /* =========================
    📦 LOAD DATA
@@ -56,13 +86,17 @@ async function loadData() {
   if (dailyResult.error)
     throw dailyResult.error;
 
+
   const users = {};
 
-  for (const u of usersResult.data || []) {
+  for (
+    const u of usersResult.data || []
+  ) {
 
     users[String(u.id)] = {
 
-      id: String(u.id),
+      id:
+        String(u.id),
 
       firstName:
         u.first_name || "User",
@@ -80,45 +114,58 @@ async function loadData() {
 
   }
 
+
   const referrals = {};
 
-  for (const r of referralsResult.data || []) {
+  for (
+    const r of referralsResult.data || []
+  ) {
 
-    referrals[String(r.new_user_id)] =
+    referrals[
+      String(r.new_user_id)
+    ] =
       String(r.referrer_id);
 
   }
 
+
   const orders =
-    (ordersResult.data || []).map(o => ({
+    (ordersResult.data || [])
+      .map(o => ({
 
-      id: String(o.id),
+        id:
+          String(o.id),
 
-      userId:
-        String(o.user_id),
+        userId:
+          String(o.user_id),
 
-      uc:
-        Number(o.uc),
+        uc:
+          Number(o.uc),
 
-      cost:
-        Number(o.cost),
+        cost:
+          Number(o.cost),
 
-      playerId:
-        String(o.player_id),
+        playerId:
+          String(o.player_id),
 
-      status:
-        o.status || "pending",
+        status:
+          o.status || "pending",
 
-      createdAt:
-        o.created_at
+        createdAt:
+          o.created_at
 
-    }));
+      }));
+
 
   const payments = {};
 
-  for (const p of paymentsResult.data || []) {
+  for (
+    const p of paymentsResult.data || []
+  ) {
 
-    payments[String(p.charge_id)] = {
+    payments[
+      String(p.charge_id)
+    ] = {
 
       userId:
         String(p.user_id),
@@ -136,14 +183,20 @@ async function loadData() {
 
   }
 
+
   const dailyRewards = {};
 
-  for (const d of dailyResult.data || []) {
+  for (
+    const d of dailyResult.data || []
+  ) {
 
-    dailyRewards[String(d.user_id)] =
+    dailyRewards[
+      String(d.user_id)
+    ] =
       String(d.reward_date);
 
   }
+
 
   return {
 
@@ -168,19 +221,20 @@ async function loadData() {
 
 async function saveData(data) {
 
-  /*
-    البيانات الجديدة يتم حفظها
-    مباشرة في Supabase.
-  */
+  for (
+    const user of
+    Object.values(data.users || {})
+  ) {
 
-  for (const user of Object.values(data.users || {})) {
-
-    const { error } =
+    const {
+      error
+    } =
       await supabase
         .from("users")
         .upsert({
 
-          id: String(user.id),
+          id:
+            String(user.id),
 
           first_name:
             user.firstName || "User",
@@ -192,7 +246,8 @@ async function saveData(data) {
             Number(user.referrals || 0),
 
           created_at:
-            user.createdAt || new Date().toISOString()
+            user.createdAt ||
+            new Date().toISOString()
 
         });
 
@@ -213,26 +268,35 @@ async function getUser(
   firstName = "User"
 ) {
 
-  const id = String(userId);
+  const id =
+    String(userId);
 
-  const { data, error } =
+
+  const {
+    data,
+    error
+  } =
     await supabase
       .from("users")
       .select("*")
       .eq("id", id)
       .maybeSingle();
 
+
   if (error)
     throw error;
+
 
   if (data) {
 
     return {
 
-      id: String(data.id),
+      id:
+        String(data.id),
 
       firstName:
-        data.first_name || firstName,
+        data.first_name ||
+        firstName,
 
       points:
         Number(data.points || 0),
@@ -247,6 +311,7 @@ async function getUser(
 
   }
 
+
   const newUser = {
 
     id,
@@ -254,25 +319,34 @@ async function getUser(
     first_name:
       firstName || "User",
 
-    points: 0,
+    points:
+      0,
 
-    referrals: 0
+    referrals:
+      0
 
   };
 
-  const { data: created, error: createError } =
+
+  const {
+    data: created,
+    error: createError
+  } =
     await supabase
       .from("users")
       .insert(newUser)
       .select()
       .single();
 
+
   if (createError)
     throw createError;
 
+
   return {
 
-    id: String(created.id),
+    id:
+      String(created.id),
 
     firstName:
       created.first_name,
@@ -306,25 +380,40 @@ async function addReferral(
   const refId =
     String(referrerId);
 
+
   if (newId === refId)
     return false;
 
-  const { data: existing } =
+
+  const {
+    data: existing,
+    error: existingError
+  } =
     await supabase
       .from("referrals")
       .select("new_user_id")
       .eq("new_user_id", newId)
       .maybeSingle();
 
+
+  if (existingError)
+    throw existingError;
+
+
   if (existing)
     return false;
 
+
   await getUser(newId);
+
 
   const referrer =
     await getUser(refId);
 
-  const { error } =
+
+  const {
+    error
+  } =
     await supabase
       .from("referrals")
       .insert({
@@ -337,10 +426,14 @@ async function addReferral(
 
       });
 
+
   if (error)
     throw error;
 
-  const { error: updateError } =
+
+  const {
+    error: updateError
+  } =
     await supabase
       .from("users")
       .update({
@@ -354,8 +447,10 @@ async function addReferral(
       })
       .eq("id", refId);
 
+
   if (updateError)
     throw updateError;
+
 
   return true;
 
@@ -366,25 +461,38 @@ async function addReferral(
    🎁 DAILY REWARD
 ========================= */
 
-async function claimDailyReward(userId) {
+async function claimDailyReward(
+  userId
+) {
 
   const id =
     String(userId);
+
 
   const today =
     new Date()
       .toISOString()
       .slice(0, 10);
 
+
   const user =
     await getUser(id);
 
-  const { data: reward } =
+
+  const {
+    data: reward,
+    error: rewardCheckError
+  } =
     await supabase
       .from("daily_rewards")
       .select("*")
       .eq("user_id", id)
       .maybeSingle();
+
+
+  if (rewardCheckError)
+    throw rewardCheckError;
+
 
   if (
     reward &&
@@ -393,7 +501,8 @@ async function claimDailyReward(userId) {
 
     return {
 
-      success: false,
+      success:
+        false,
 
       message:
         "🎁 أخذت هديتك اليومية اليوم!\n\n" +
@@ -403,24 +512,34 @@ async function claimDailyReward(userId) {
 
   }
 
-  const { error: rewardError } =
+
+  const {
+    error: rewardError
+  } =
     await supabase
       .from("daily_rewards")
       .upsert({
 
-        user_id: id,
+        user_id:
+          id,
 
-        reward_date: today
+        reward_date:
+          today
 
       });
+
 
   if (rewardError)
     throw rewardError;
 
+
   const newBalance =
     Number(user.points || 0) + 1;
 
-  const { error: userError } =
+
+  const {
+    error: userError
+  } =
     await supabase
       .from("users")
       .update({
@@ -431,14 +550,18 @@ async function claimDailyReward(userId) {
       })
       .eq("id", id);
 
+
   if (userError)
     throw userError;
 
+
   return {
 
-    success: true,
+    success:
+      true,
 
-    points: 1,
+    points:
+      1,
 
     balance:
       newBalance
@@ -465,33 +588,49 @@ async function addStarsPurchase(
   const charge =
     String(chargeId);
 
-  const { data: existing } =
+
+  const {
+    data: existing,
+    error: existingError
+  } =
     await supabase
       .from("payments")
       .select("charge_id")
       .eq("charge_id", charge)
       .maybeSingle();
 
+
+  if (existingError)
+    throw existingError;
+
+
   if (existing) {
 
     return {
 
-      success: false,
+      success:
+        false,
 
-      duplicate: true
+      duplicate:
+        true
 
     };
 
   }
 
+
   const user =
     await getUser(id);
+
 
   const newBalance =
     Number(user.points || 0) +
     Number(points);
 
-  const { error: paymentError } =
+
+  const {
+    error: paymentError
+  } =
     await supabase
       .from("payments")
       .insert({
@@ -510,10 +649,14 @@ async function addStarsPurchase(
 
       });
 
+
   if (paymentError)
     throw paymentError;
 
-  const { error: userError } =
+
+  const {
+    error: userError
+  } =
     await supabase
       .from("users")
       .update({
@@ -524,12 +667,15 @@ async function addStarsPurchase(
       })
       .eq("id", id);
 
+
   if (userError)
     throw userError;
 
+
   return {
 
-    success: true,
+    success:
+      true,
 
     newBalance
 
@@ -552,8 +698,10 @@ async function createOrder(
   const id =
     String(userId);
 
+
   const user =
     await getUser(id);
+
 
   if (
     Number(user.points) <
@@ -562,7 +710,8 @@ async function createOrder(
 
     return {
 
-      success: false,
+      success:
+        false,
 
       message:
         "❌ رصيد النقاط غير كافٍ.\n\n" +
@@ -572,9 +721,11 @@ async function createOrder(
 
   }
 
+
   const newBalance =
     Number(user.points) -
     Number(cost);
+
 
   const order = {
 
@@ -598,15 +749,22 @@ async function createOrder(
 
   };
 
-  const { error: orderError } =
+
+  const {
+    error: orderError
+  } =
     await supabase
       .from("orders")
       .insert(order);
 
+
   if (orderError)
     throw orderError;
 
-  const { error: userError } =
+
+  const {
+    error: userError
+  } =
     await supabase
       .from("users")
       .update({
@@ -617,12 +775,15 @@ async function createOrder(
       })
       .eq("id", id);
 
+
   if (userError)
     throw userError;
 
+
   return {
 
-    success: true,
+    success:
+      true,
 
     order: {
 
@@ -661,19 +822,33 @@ async function createOrder(
    📦 GET ORDERS
 ========================= */
 
-async function getOrders(userId) {
+async function getOrders(
+  userId
+) {
 
-  const { data, error } =
+  const {
+    data,
+    error
+  } =
     await supabase
       .from("orders")
       .select("*")
-      .eq("user_id", String(userId))
-      .order("created_at", {
-        ascending: false
-      });
+      .eq(
+        "user_id",
+        String(userId)
+      )
+      .order(
+        "created_at",
+        {
+          ascending:
+            false
+        }
+      );
+
 
   if (error)
     throw error;
+
 
   return data || [];
 
